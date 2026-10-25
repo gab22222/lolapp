@@ -1,0 +1,1987 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LoL — Tier Lists &amp; Matchups</title>
+<style>
+:root{--bg:#0a0e14;--side:#0d141d;--line:#243040;--gold:#c8aa6e;--gold2:#f0e6d2;--muted:#8b98a8;--accent:#0ac8b9}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);overflow:hidden}
+#app{display:flex;height:100%}
+nav{width:92px;flex:none;background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:stretch;padding:12px 8px;gap:8px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+nav .logo{color:var(--gold);font-weight:800;font-size:13px;letter-spacing:.08em;text-align:center;text-transform:uppercase;padding:4px 0 10px;border-bottom:1px solid var(--line);margin-bottom:4px}
+nav button{appearance:none;cursor:pointer;background:transparent;border:1px solid transparent;border-radius:8px;color:var(--muted);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;font:inherit;font-size:12px;font-weight:600;line-height:1.2;text-align:center;transition:.15s}
+nav button .ic{font-size:24px;line-height:1}
+nav button:hover{color:var(--gold2);background:#141e2b}
+nav button.active{color:var(--gold2);background:#17232f;border-color:var(--gold);box-shadow:inset 3px 0 0 var(--gold)}
+#frames{flex:1;min-width:0;position:relative}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:var(--bg)}
+iframe.active{display:block}
+@media (max-width:600px){nav{width:64px;padding:8px 4px}nav .logo{display:none}nav button{font-size:10px}nav button .ic{font-size:20px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <nav>
+    <div class="logo">LoL</div>
+    <button data-t="tiers" class="active" title="Tier Lists"><span class="ic">🏆</span>Tier Lists</button>
+    <button data-t="matchups" title="Matchups Mid"><span class="ic">⚔️</span>Matchups Mid</button>
+    <button data-t="precis" title="Matchup précis"><span class="ic">🎯</span>Matchup précis</button>
+  </nav>
+  <div id="frames">
+    <iframe id="tiers" class="active" title="Tier Lists LoL" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;title&gt;Tier Lists LoL&lt;/title&gt;
+&lt;style&gt;
+:root{
+  --bg:#0a1018; --panel:#111a26; --panel2:#18232f; --line:#263445;
+  --gold:#c8aa6e; --gold2:#f0e6d2; --text:#e8e2d4; --muted:#8a97a8; --accent:#0ac8b9;
+  --size:64px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#132033 0%,var(--bg) 60%) fixed;color:var(--text);font:14px/1.4 system-ui,-apple-system,&quot;Segoe UI&quot;,Roboto,sans-serif;min-height:100vh}
+header{position:sticky;top:0;z-index:20;background:rgba(10,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+h1{font-size:18px;margin:0 12px 0 0;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
+select,input[type=search],button{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+select{max-width:220px}
+button{cursor:pointer}
+button:hover{border-color:var(--gold);color:var(--gold2)}
+button.primary{background:linear-gradient(#1e2d3d,#142131);border-color:var(--gold);color:var(--gold2)}
+.spacer{flex:1}
+#status{font-size:12px;color:var(--muted)}
+#status.ok{color:#5fd38d}
+#status.err{color:#ff7b7b}
+main{max-width:1400px;margin:0 auto;padding:16px}
+#tiers{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#000}
+.tier{display:flex;min-height:calc(var(--size) + 8px);border-bottom:2px solid #000}
+.tier:last-child{border-bottom:0}
+.label{width:110px;flex:none;display:flex;align-items:center;justify-content:center;text-align:center;color:#111;font-weight:800;font-size:22px;padding:6px;word-break:break-word;outline:none;cursor:text}
+.label:focus{box-shadow:inset 0 0 0 3px rgba(0,0,0,.45)}
+.zone{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px;padding:4px;background:var(--panel);min-width:0}
+.zone.over{background:#1c2b3c}
+.actions{flex:none;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:4px;background:var(--panel2)}
+.actions button{padding:1px 6px;font-size:11px;line-height:1.3}
+.actions input[type=color]{width:28px;height:20px;padding:0;border:1px solid var(--line);background:none;cursor:pointer}
+.champ{width:var(--size);height:var(--size);position:relative;border-radius:4px;overflow:hidden;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;background:#222;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.6)}
+.champ img{width:100%;height:100%;display:block;pointer-events:none}
+.champ .nm{position:absolute;left:0;right:0;bottom:0;font-size:10px;line-height:1.3;text-align:center;background:rgba(0,0,0,.72);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px;opacity:0;transition:opacity .12s;pointer-events:none}
+.champ:hover .nm, body.names .champ .nm{opacity:1}
+.champ.noimg .nm{opacity:1;top:0;display:flex;align-items:center;justify-content:center;white-space:normal}
+.champ.dragging{opacity:.3}
+.champ.selected{box-shadow:0 0 0 3px var(--accent)}
+.champ.ins{box-shadow:-4px 0 0 0 var(--gold)}
+.zone.ins-end::after{content:&quot;&quot;;width:4px;height:var(--size);background:var(--gold);border-radius:2px}
+.ghost{position:fixed;left:0;top:0;z-index:100;pointer-events:none;opacity:.92;box-shadow:0 8px 24px rgba(0,0,0,.6),0 0 0 2px var(--gold)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+#poolWrap{margin-top:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+#poolHead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line)}
+#pool.zone{display:flex;max-height:45vh;overflow:auto;padding:8px;background:transparent;min-height:calc(var(--size) + 16px)}
+#pool.zone.over{background:#1c2b3c}
+#chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{padding:4px 10px;border-radius:999px;font-size:12px}
+.chip.on{background:var(--gold);color:#111;border-color:var(--gold)}
+#search{flex:1;min-width:160px}
+.muted{color:var(--muted);font-size:12px}
+.hint{color:var(--muted);font-size:12px;margin-top:12px}
+#msg{padding:12px;color:#ffb36b}
+@media (max-width:600px){.label{width:64px;font-size:16px}h1{font-size:15px}}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header&gt;
+  &lt;h1&gt;⚔ Tier Lists LoL&lt;/h1&gt;
+  &lt;select id=&quot;listSel&quot; title=&quot;Choisir une tier list&quot;&gt;&lt;/select&gt;
+  &lt;button id=&quot;bNew&quot; class=&quot;primary&quot;&gt;+ Nouvelle&lt;/button&gt;
+  &lt;button id=&quot;bRename&quot;&gt;Renommer&lt;/button&gt;
+  &lt;button id=&quot;bDup&quot;&gt;Dupliquer&lt;/button&gt;
+  &lt;button id=&quot;bDel&quot;&gt;Supprimer&lt;/button&gt;
+  &lt;span class=&quot;spacer&quot;&gt;&lt;/span&gt;
+  &lt;span id=&quot;status&quot;&gt;&lt;/span&gt;
+  &lt;button id=&quot;bExport&quot; title=&quot;Télécharger une sauvegarde de toutes tes tier lists (.json)&quot;&gt;Exporter&lt;/button&gt;
+  &lt;button id=&quot;bImport&quot; title=&quot;Charger une sauvegarde (.json)&quot;&gt;Importer&lt;/button&gt;
+  &lt;input type=&quot;file&quot; id=&quot;fileIn&quot; accept=&quot;.json,application/json&quot; hidden&gt;
+&lt;/header&gt;
+
+&lt;main&gt;
+  &lt;div id=&quot;tiers&quot;&gt;&lt;/div&gt;
+
+  &lt;div class=&quot;bar&quot;&gt;
+    &lt;button id=&quot;bAddTier&quot;&gt;+ Ajouter un tier&lt;/button&gt;
+    &lt;button id=&quot;bReset&quot;&gt;Tout remettre dans le pool&lt;/button&gt;
+    &lt;span class=&quot;spacer&quot;&gt;&lt;/span&gt;
+    &lt;label class=&quot;muted&quot;&gt;Taille &lt;input type=&quot;range&quot; id=&quot;size&quot; min=&quot;40&quot; max=&quot;96&quot; step=&quot;4&quot;&gt;&lt;/label&gt;
+    &lt;label class=&quot;muted&quot;&gt;&lt;input type=&quot;checkbox&quot; id=&quot;names&quot;&gt; Afficher les noms&lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;section id=&quot;poolWrap&quot;&gt;
+    &lt;div id=&quot;poolHead&quot;&gt;
+      &lt;input type=&quot;search&quot; id=&quot;search&quot; placeholder=&quot;Rechercher un champion…&quot;&gt;
+      &lt;div id=&quot;chips&quot;&gt;&lt;/div&gt;
+      &lt;span id=&quot;count&quot; class=&quot;muted&quot;&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;msg&quot; hidden&gt;&lt;/div&gt;
+    &lt;div id=&quot;pool&quot; class=&quot;zone&quot; data-zone=&quot;pool&quot;&gt;&lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;p class=&quot;hint&quot;&gt;
+    Glisse-dépose les champions dans les tiers. Sur mobile : touche un champion pour le sélectionner, puis touche une ligne.
+    Double-clic sur un champion classé = retour au pool. Clique sur le nom d&#x27;un tier pour le modifier.
+    Tout est sauvegardé automatiquement dans ce navigateur — pense à « Exporter » de temps en temps pour avoir une copie de secours.
+  &lt;/p&gt;
+&lt;/main&gt;
+
+&lt;script&gt;
+const KEY = &#x27;lol-tierlists-v1&#x27;;
+const DEFAULT_LISTS = [];
+const CKEY = &#x27;lol-tierlists-champs&#x27;;
+const DD = &#x27;https://ddragon.leagueoflegends.com&#x27;;
+const DEFAULT_TIERS = [[&#x27;S&#x27;,&#x27;#ff7f7f&#x27;],[&#x27;A&#x27;,&#x27;#ffbf7f&#x27;],[&#x27;B&#x27;,&#x27;#ffdf7f&#x27;],[&#x27;C&#x27;,&#x27;#ffff7f&#x27;],[&#x27;D&#x27;,&#x27;#bfff7f&#x27;]];
+const ROLES = [[&#x27;&#x27;,&#x27;Tous&#x27;],[&#x27;Assassin&#x27;,&#x27;Assassin&#x27;],[&#x27;Fighter&#x27;,&#x27;Combattant&#x27;],[&#x27;Mage&#x27;,&#x27;Mage&#x27;],[&#x27;Marksman&#x27;,&#x27;Tireur&#x27;],[&#x27;Support&#x27;,&#x27;Support&#x27;],[&#x27;Tank&#x27;,&#x27;Tank&#x27;]];
+
+const $ = s =&gt; document.querySelector(s);
+const uid = () =&gt; Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+function lsGet(k){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e){ return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; } }
+
+function newList(name){
+  return { id: uid(), name, tiers: DEFAULT_TIERS.map(([label, color]) =&gt; ({ id: uid(), label, color, champs: [] })) };
+}
+
+/* ---------- état ---------- */
+let state = lsGet(KEY);
+const hadSave = !!(state &amp;&amp; Array.isArray(state.lists) &amp;&amp; state.lists.length);
+if (!hadSave) {
+  state = { lists: DEFAULT_LISTS.length ? JSON.parse(JSON.stringify(DEFAULT_LISTS)) : [newList(&#x27;Ma tier list&#x27;)], settings: {} };
+}
+state.settings = Object.assign({ size: 64, names: false }, state.settings);
+if (!state.lists.find(l =&gt; l.id === state.current)) state.current = state.lists[0].id;
+
+let champs = [], champMap = {}, ddVer = null;
+const filter = { q: &#x27;&#x27;, role: &#x27;&#x27; };
+let selected = null;
+
+const cur = () =&gt; state.lists.find(l =&gt; l.id === state.current);
+
+function save(){
+  const ok = lsSet(KEY, state);
+  const s = $(&#x27;#status&#x27;);
+  if (ok) {
+    s.className = &#x27;ok&#x27;;
+    s.textContent = &#x27;✓ Sauvegardé à &#x27; + new Date().toLocaleTimeString(&#x27;fr-FR&#x27;, { hour: &#x27;2-digit&#x27;, minute: &#x27;2-digit&#x27; });
+  } else {
+    s.className = &#x27;err&#x27;;
+    s.textContent = &#x27;⚠ Sauvegarde auto impossible — utilise Exporter&#x27;;
+  }
+}
+
+/* ---------- rendu ---------- */
+function champEl(id){
+  const c = champMap[id] || { id, name: id };
+  const d = document.createElement(&#x27;div&#x27;);
+  d.className = &#x27;champ&#x27; + (selected === id ? &#x27; selected&#x27; : &#x27;&#x27;);
+  d.dataset.id = id;
+  d.title = c.name;
+  const nm = document.createElement(&#x27;span&#x27;);
+  nm.className = &#x27;nm&#x27;;
+  nm.textContent = c.name;
+  if (ddVer) {
+    const img = document.createElement(&#x27;img&#x27;);
+    img.src = `${DD}/cdn/${ddVer}/img/champion/${id}.png`;
+    img.alt = c.name;
+    img.draggable = false;
+    img.loading = &#x27;lazy&#x27;;
+    img.onerror = () =&gt; { img.remove(); d.classList.add(&#x27;noimg&#x27;); };
+    d.appendChild(img);
+  } else {
+    d.classList.add(&#x27;noimg&#x27;);
+  }
+  d.appendChild(nm);
+  return d;
+}
+
+function btn(txt, title, fn){
+  const b = document.createElement(&#x27;button&#x27;);
+  b.textContent = txt; b.title = title; b.onclick = fn;
+  return b;
+}
+
+function renderLists(){
+  const sel = $(&#x27;#listSel&#x27;);
+  sel.innerHTML = &#x27;&#x27;;
+  state.lists.forEach(l =&gt; {
+    const o = document.createElement(&#x27;option&#x27;);
+    o.value = l.id; o.textContent = l.name;
+    if (l.id === state.current) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function renderTiers(){
+  const L = cur(), box = $(&#x27;#tiers&#x27;);
+  box.innerHTML = &#x27;&#x27;;
+  L.tiers.forEach((t, i) =&gt; {
+    const row = document.createElement(&#x27;div&#x27;);
+    row.className = &#x27;tier&#x27;;
+
+    const lab = document.createElement(&#x27;div&#x27;);
+    lab.className = &#x27;label&#x27;;
+    lab.contentEditable = &#x27;true&#x27;;
+    lab.spellcheck = false;
+    lab.textContent = t.label;
+    lab.style.background = t.color;
+    lab.addEventListener(&#x27;blur&#x27;, () =&gt; {
+      const v = lab.textContent.trim() || &#x27;?&#x27;;
+      if (v !== t.label) { t.label = v; save(); }
+      lab.textContent = v;
+    });
+    lab.addEventListener(&#x27;keydown&#x27;, e =&gt; { if (e.key === &#x27;Enter&#x27;) { e.preventDefault(); lab.blur(); } });
+
+    const zone = document.createElement(&#x27;div&#x27;);
+    zone.className = &#x27;zone&#x27;;
+    zone.dataset.zone = t.id;
+    t.champs.forEach(id =&gt; zone.appendChild(champEl(id)));
+
+    const act = document.createElement(&#x27;div&#x27;);
+    act.className = &#x27;actions&#x27;;
+    const col = document.createElement(&#x27;input&#x27;);
+    col.type = &#x27;color&#x27;; col.value = t.color; col.title = &#x27;Couleur&#x27;;
+    col.addEventListener(&#x27;input&#x27;, () =&gt; { t.color = col.value; lab.style.background = col.value; });
+    col.addEventListener(&#x27;change&#x27;, save);
+    const up = btn(&#x27;▲&#x27;, &#x27;Monter&#x27;, () =&gt; {
+      if (i &gt; 0) { [L.tiers[i-1], L.tiers[i]] = [L.tiers[i], L.tiers[i-1]]; save(); renderTiers(); }
+    });
+    const dn = btn(&#x27;▼&#x27;, &#x27;Descendre&#x27;, () =&gt; {
+      if (i &lt; L.tiers.length - 1) { [L.tiers[i+1], L.tiers[i]] = [L.tiers[i], L.tiers[i+1]]; save(); renderTiers(); }
+    });
+    const del = btn(&#x27;✕&#x27;, &#x27;Supprimer ce tier&#x27;, () =&gt; {
+      if (t.champs.length &amp;&amp; !confirm(`Supprimer le tier « ${t.label} » ? Ses champions retourneront dans le pool.`)) return;
+      L.tiers.splice(i, 1); save(); renderTiers(); renderPool();
+    });
+    act.append(col, up, dn, del);
+
+    row.append(lab, zone, act);
+    box.appendChild(row);
+  });
+}
+
+function placedSet(){
+  const s = new Set();
+  cur().tiers.forEach(t =&gt; t.champs.forEach(id =&gt; s.add(id)));
+  return s;
+}
+const norm = s =&gt; String(s).normalize(&#x27;NFD&#x27;).replace(/[\u0300-\u036f]/g, &#x27;&#x27;).toLowerCase().replace(/[^a-z0-9]/g, &#x27;&#x27;);
+
+function renderPool(){
+  const pool = $(&#x27;#pool&#x27;);
+  pool.innerHTML = &#x27;&#x27;;
+  const placed = placedSet();
+  const q = norm(filter.q);
+  champs.forEach(c =&gt; {
+    if (placed.has(c.id)) return;
+    if (filter.role &amp;&amp; !c.tags.includes(filter.role)) return;
+    if (q &amp;&amp; !norm(c.name).includes(q) &amp;&amp; !norm(c.id).includes(q)) return;
+    pool.appendChild(champEl(c.id));
+  });
+  const n = champs.filter(c =&gt; placed.has(c.id)).length;
+  $(&#x27;#count&#x27;).textContent = champs.length ? `${n} / ${champs.length} classés` : &#x27;&#x27;;
+}
+
+function renderChips(){
+  const box = $(&#x27;#chips&#x27;);
+  box.innerHTML = &#x27;&#x27;;
+  ROLES.forEach(([tag, label]) =&gt; {
+    const b = btn(label, &#x27;Filtrer : &#x27; + label, () =&gt; { filter.role = tag; renderChips(); renderPool(); });
+    b.className = &#x27;chip&#x27; + (filter.role === tag ? &#x27; on&#x27; : &#x27;&#x27;);
+    box.appendChild(b);
+  });
+}
+
+function renderAll(){ renderLists(); renderTiers(); renderPool(); }
+
+function applySettings(){
+  document.documentElement.style.setProperty(&#x27;--size&#x27;, state.settings.size + &#x27;px&#x27;);
+  document.body.classList.toggle(&#x27;names&#x27;, !!state.settings.names);
+  $(&#x27;#size&#x27;).value = state.settings.size;
+  $(&#x27;#names&#x27;).checked = !!state.settings.names;
+}
+
+/* ---------- déplacement ---------- */
+function moveChamp(id, zoneId, index){
+  const L = cur();
+  L.tiers.forEach(t =&gt; { const i = t.champs.indexOf(id); if (i &gt; -1) t.champs.splice(i, 1); });
+  if (zoneId !== &#x27;pool&#x27;) {
+    const t = L.tiers.find(t =&gt; t.id === zoneId);
+    if (t) {
+      const i = index == null ? t.champs.length : Math.min(index, t.champs.length);
+      t.champs.splice(i, 0, id);
+    }
+  }
+  save(); renderTiers(); renderPool();
+}
+
+function markSelected(){
+  document.querySelectorAll(&#x27;.champ.selected&#x27;).forEach(n =&gt; n.classList.remove(&#x27;selected&#x27;));
+  if (selected) document.querySelectorAll(`.champ[data-id=&quot;${CSS.escape(selected)}&quot;]`).forEach(n =&gt; n.classList.add(&#x27;selected&#x27;));
+}
+
+let lastTap = { id: null, t: 0 };
+function tap(id){
+  const now = Date.now();
+  if (lastTap.id === id &amp;&amp; now - lastTap.t &lt; 350 &amp;&amp; placedSet().has(id)) {
+    selected = null; lastTap = { id: null, t: 0 };
+    moveChamp(id, &#x27;pool&#x27;);
+    return;
+  }
+  lastTap = { id, t: now };
+  selected = selected === id ? null : id;
+  markSelected();
+}
+
+function clearMarks(){
+  document.querySelectorAll(&#x27;.over,.ins,.ins-end&#x27;).forEach(n =&gt; n.classList.remove(&#x27;over&#x27;, &#x27;ins&#x27;, &#x27;ins-end&#x27;));
+}
+
+function zoneAt(x, y){
+  const t = document.elementFromPoint(x, y);
+  if (!t) return null;
+  return t.closest(&#x27;[data-zone]&#x27;)
+      || (t.closest(&#x27;.tier&#x27;) &amp;&amp; t.closest(&#x27;.tier&#x27;).querySelector(&#x27;[data-zone]&#x27;))
+      || (t.closest(&#x27;#poolWrap&#x27;) &amp;&amp; $(&#x27;#pool&#x27;))
+      || null;
+}
+
+let drag = null;
+function updateTarget(x, y){
+  clearMarks();
+  const zone = zoneAt(x, y);
+  drag.zone = zone; drag.index = null;
+  if (!zone) return;
+  zone.classList.add(&#x27;over&#x27;);
+  if (zone.dataset.zone === &#x27;pool&#x27;) return;
+  const kids = [...zone.querySelectorAll(&#x27;.champ&#x27;)].filter(k =&gt; k !== drag.src);
+  let idx = kids.length;
+  for (let i = 0; i &lt; kids.length; i++) {
+    const r = kids[i].getBoundingClientRect();
+    if (y &lt; r.top || (y &lt;= r.bottom &amp;&amp; x &lt; r.left + r.width / 2)) { idx = i; break; }
+  }
+  drag.index = idx;
+  if (idx &lt; kids.length) kids[idx].classList.add(&#x27;ins&#x27;); else zone.classList.add(&#x27;ins-end&#x27;);
+}
+
+function endDrag(d){
+  if (d.ghost) d.ghost.remove();
+  d.src.classList.remove(&#x27;dragging&#x27;);
+  document.body.style.cursor = &#x27;&#x27;;
+  clearMarks();
+}
+
+document.addEventListener(&#x27;pointerdown&#x27;, e =&gt; {
+  const el = e.target.closest(&#x27;.champ&#x27;);
+  if (!el || e.button &gt; 0) return;
+  e.preventDefault();
+  drag = { id: el.dataset.id, src: el, x: e.clientX, y: e.clientY, on: false, ghost: null, zone: null, index: null };
+});
+
+document.addEventListener(&#x27;pointermove&#x27;, e =&gt; {
+  if (!drag) return;
+  if (!drag.on) {
+    if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) &lt; 6) return;
+    drag.on = true;
+    const g = drag.src.cloneNode(true);
+    g.classList.remove(&#x27;selected&#x27;, &#x27;ins&#x27;);
+    g.classList.add(&#x27;ghost&#x27;);
+    document.body.appendChild(g);
+    drag.ghost = g;
+    drag.src.classList.add(&#x27;dragging&#x27;);
+    document.body.style.cursor = &#x27;grabbing&#x27;;
+  }
+  const h = drag.src.offsetWidth / 2;
+  drag.ghost.style.transform = `translate(${e.clientX - h}px, ${e.clientY - h}px)`;
+  updateTarget(e.clientX, e.clientY);
+  if (e.clientY &lt; 50) window.scrollBy(0, -12);
+  else if (e.clientY &gt; innerHeight - 50) window.scrollBy(0, 12);
+});
+
+document.addEventListener(&#x27;pointerup&#x27;, () =&gt; {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (d.on) {
+    endDrag(d);
+    if (d.zone) { selected = null; moveChamp(d.id, d.zone.dataset.zone, d.index); }
+  } else {
+    tap(d.id);
+  }
+});
+
+document.addEventListener(&#x27;pointercancel&#x27;, () =&gt; {
+  if (!drag) return;
+  endDrag(drag); drag = null;
+});
+
+document.addEventListener(&#x27;click&#x27;, e =&gt; {
+  if (!selected || e.target.closest(&#x27;.champ&#x27;)) return;
+  const zone = e.target.closest(&#x27;[data-zone]&#x27;);
+  if (zone) { const id = selected; selected = null; moveChamp(id, zone.dataset.zone); }
+});
+
+document.addEventListener(&#x27;keydown&#x27;, e =&gt; {
+  if (e.key === &#x27;Escape&#x27; &amp;&amp; selected) { selected = null; markSelected(); }
+});
+
+/* ---------- gestion des listes ---------- */
+$(&#x27;#listSel&#x27;).onchange = e =&gt; { state.current = e.target.value; selected = null; save(); renderTiers(); renderPool(); };
+
+$(&#x27;#bNew&#x27;).onclick = () =&gt; {
+  const n = prompt(&#x27;Nom de la nouvelle tier list :&#x27;, `Tier list ${state.lists.length + 1}`);
+  if (n === null) return;
+  const L = newList(n.trim() || &#x27;Sans nom&#x27;);
+  state.lists.push(L); state.current = L.id;
+  save(); renderAll();
+};
+
+$(&#x27;#bRename&#x27;).onclick = () =&gt; {
+  const L = cur();
+  const n = prompt(&#x27;Nouveau nom :&#x27;, L.name);
+  if (n === null || !n.trim()) return;
+  L.name = n.trim(); save(); renderLists();
+};
+
+$(&#x27;#bDup&#x27;).onclick = () =&gt; {
+  const L = cur();
+  const c = JSON.parse(JSON.stringify(L));
+  c.id = uid(); c.name = L.name + &#x27; (copie)&#x27;;
+  c.tiers.forEach(t =&gt; t.id = uid());
+  state.lists.push(c); state.current = c.id;
+  save(); renderAll();
+};
+
+$(&#x27;#bDel&#x27;).onclick = () =&gt; {
+  const L = cur();
+  if (!confirm(`Supprimer « ${L.name} » ? C&#x27;est définitif.`)) return;
+  state.lists = state.lists.filter(x =&gt; x !== L);
+  if (!state.lists.length) state.lists.push(newList(&#x27;Ma tier list&#x27;));
+  state.current = state.lists[0].id;
+  save(); renderAll();
+};
+
+$(&#x27;#bAddTier&#x27;).onclick = () =&gt; {
+  cur().tiers.push({ id: uid(), label: &#x27;Nouveau&#x27;, color: &#x27;#7fbfff&#x27;, champs: [] });
+  save(); renderTiers();
+};
+
+$(&#x27;#bReset&#x27;).onclick = () =&gt; {
+  if (!confirm(&#x27;Remettre tous les champions de cette tier list dans le pool ?&#x27;)) return;
+  cur().tiers.forEach(t =&gt; t.champs = []);
+  save(); renderTiers(); renderPool();
+};
+
+$(&#x27;#search&#x27;).oninput = e =&gt; { filter.q = e.target.value; renderPool(); };
+$(&#x27;#size&#x27;).oninput = e =&gt; { state.settings.size = +e.target.value; applySettings(); };
+$(&#x27;#size&#x27;).onchange = save;
+$(&#x27;#names&#x27;).onchange = e =&gt; { state.settings.names = e.target.checked; applySettings(); save(); };
+
+/* ---------- export / import ---------- */
+$(&#x27;#bExport&#x27;).onclick = () =&gt; {
+  const data = { app: &#x27;lol-tierlists&#x27;, version: 1, exported: new Date().toISOString(), lists: state.lists };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: &#x27;application/json&#x27; });
+  const a = document.createElement(&#x27;a&#x27;);
+  a.href = URL.createObjectURL(blob);
+  a.download = `tierlists-lol-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() =&gt; URL.revokeObjectURL(a.href), 1000);
+};
+
+$(&#x27;#bImport&#x27;).onclick = () =&gt; $(&#x27;#fileIn&#x27;).click();
+
+$(&#x27;#fileIn&#x27;).onchange = async e =&gt; {
+  const f = e.target.files[0];
+  e.target.value = &#x27;&#x27;;
+  if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    const lists = Array.isArray(data) ? data : data.lists;
+    if (!Array.isArray(lists)) throw new Error(&#x27;format&#x27;);
+    const clean = lists.filter(l =&gt; l &amp;&amp; Array.isArray(l.tiers)).map(l =&gt; ({
+      id: l.id ? String(l.id) : uid(),
+      name: String(l.name || &#x27;Importée&#x27;),
+      tiers: l.tiers.map(t =&gt; ({
+        id: uid(),
+        label: String(t.label ?? &#x27;?&#x27;),
+        color: /^#[0-9a-f]{6}$/i.test(t.color) ? t.color : &#x27;#cccccc&#x27;,
+        champs: Array.isArray(t.champs) ? t.champs.map(String) : []
+      }))
+    }));
+    if (!clean.length) throw new Error(&#x27;vide&#x27;);
+    const existing = clean.filter(l =&gt; state.lists.some(x =&gt; x.id === l.id)).length;
+    const msg = `${clean.length} tier list(s) trouvée(s) dans le fichier.` +
+      (existing ? `\n${existing} existe(nt) déjà et sera(ont) remplacée(s) par la version du fichier.` : &#x27;&#x27;) +
+      `\nLes autres seront ajoutées. Continuer ?`;
+    if (!confirm(msg)) return;
+    clean.forEach(l =&gt; {
+      const i = state.lists.findIndex(x =&gt; x.id === l.id);
+      if (i &gt; -1) state.lists[i] = l; else state.lists.push(l);
+    });
+    state.current = clean[0].id;
+    save(); renderAll();
+  } catch (err) {
+    alert(&quot;Ce fichier n&#x27;est pas une sauvegarde de tier lists valide.&quot;);
+  }
+};
+
+/* ---------- champions (Data Dragon de Riot) ---------- */
+function setChamps(v, list){
+  ddVer = v;
+  champs = list.slice().sort((a, b) =&gt; a.name.localeCompare(b.name, &#x27;fr&#x27;));
+  champMap = {};
+  champs.forEach(c =&gt; champMap[c.id] = c);
+}
+
+function showMsg(t){ const m = $(&#x27;#msg&#x27;); m.textContent = t; m.hidden = !t; }
+
+async function getJSON(url){
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+async function loadChamps(){
+  const cache = lsGet(CKEY);
+  if (cache &amp;&amp; cache.version &amp;&amp; Array.isArray(cache.champs)) {
+    setChamps(cache.version, cache.champs);
+    renderAll();
+  } else {
+    showMsg(&#x27;Chargement des champions…&#x27;);
+  }
+  try {
+    const versions = await getJSON(DD + &#x27;/api/versions.json&#x27;);
+    const v = versions[0];
+    if (cache &amp;&amp; cache.version === v) { showMsg(&#x27;&#x27;); return; }
+    const j = await getJSON(`${DD}/cdn/${v}/data/fr_FR/champion.json`);
+    const list = Object.values(j.data).map(c =&gt; ({ id: c.id, name: c.name, tags: c.tags || [] }));
+    setChamps(v, list);
+    lsSet(CKEY, { version: v, champs: list });
+    showMsg(&#x27;&#x27;);
+    renderAll();
+  } catch (err) {
+    if (!champs.length) showMsg(&quot;Impossible de charger la liste des champions (pas de connexion internet ?). Tes tier lists sont bien là, recharge la page une fois connecté.&quot;);
+    else showMsg(&#x27;&#x27;);
+  }
+}
+
+/* ---------- démarrage ---------- */
+applySettings();
+renderChips();
+renderAll();
+if (hadSave) { const s = $(&#x27;#status&#x27;); s.className = &#x27;ok&#x27;; s.textContent = &#x27;✓ Tier lists chargées&#x27;; }
+else save();
+loadChamps();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+    <iframe id="matchups" title="Matchups Mid" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;color-scheme&quot; content=&quot;dark&quot;&gt;
+&lt;title&gt;Matchups Mid — League of Legends&lt;/title&gt;
+&lt;style&gt;
+  :root{
+    --bg:#0a0e14;
+    --panel:#111823;
+    --panel2:#161f2c;
+    --border:#243040;
+    --gold:#c8aa6e;
+    --gold-dim:#785a28;
+    --text:#e8eaed;
+    --muted:#8b98a8;
+    --red:#e05a5a;
+    --green:#3ecf8e;
+    --blind:#5ad1c1;
+    --blind-dim:#2b7d6b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 50% -250px, #16283d 0%, rgba(10,14,20,0) 65%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:&quot;Segoe UI&quot;,system-ui,-apple-system,&quot;Helvetica Neue&quot;,Arial,sans-serif;
+    font-size:15px;
+    min-height:100vh;
+  }
+
+  /* ---------- Toast pop-up bloqué ---------- */
+  .popup-toast{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:100;
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    max-width:min(92vw,640px);padding:10px 14px;
+    background:#161f2c;border:1px solid var(--gold-dim);border-radius:8px;
+    color:var(--text);font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.5);
+  }
+  .popup-toast a{color:var(--gold);font-weight:600}
+  .popup-toast button{appearance:none;cursor:pointer;background:none;border:0;color:var(--muted);font-size:18px;line-height:1}
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky;top:0;z-index:20;
+    display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+    padding:14px 22px;
+    background:rgba(10,14,20,.86);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand h1{
+    margin:0;font-size:20px;letter-spacing:.5px;font-weight:700;
+    background:linear-gradient(180deg,#f0e6d2,var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand h1 span{color:var(--gold);-webkit-text-fill-color:var(--gold)}
+  .brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+  .btn{
+    appearance:none;cursor:pointer;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:8px 14px;border-radius:6px;
+    font-size:13px;font-weight:600;
+    transition:.15s;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn:hover{border-color:var(--gold-dim);color:var(--gold);background:#1b2634}
+  .btn.primary{
+    background:linear-gradient(180deg,#1d4d43,#12332d);
+    border-color:#2b7d6b;color:#c9fff0;
+  }
+  .btn.primary:hover{border-color:var(--green);color:#fff}
+  .btn.danger-ghost{color:var(--muted)}
+  .btn.danger-ghost:hover{border-color:#7a3a3a;color:var(--red)}
+
+  /* ---------- Add champion panel ---------- */
+  .add-panel{
+    display:none;gap:8px;align-items:center;flex-wrap:wrap;
+    padding:10px 22px;border-bottom:1px solid var(--border);
+    background:rgba(22,31,44,.6);
+  }
+  .add-panel.open{display:flex}
+  .add-panel input{
+    background:#0e1620;border:1px solid var(--border);border-radius:6px;
+    padding:8px 12px;color:var(--text);font-size:14px;min-width:260px;outline:none;
+  }
+  .add-panel input:focus{border-color:var(--gold)}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    max-width:1080px;margin:0 auto;
+    padding:16px 22px 0;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .search{
+    flex:1;min-width:220px;
+    background:var(--panel);border:1px solid var(--border);border-radius:6px;
+    padding:9px 14px;color:var(--text);font-size:14px;outline:none;
+  }
+  .search:focus{border-color:var(--gold-dim)}
+  .meta{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:10px}
+  .save-state{
+    color:var(--green);font-size:12px;opacity:0;transition:opacity .3s;
+  }
+  .save-state.show{opacity:1}
+
+  /* ---------- List ---------- */
+  main{max-width:1080px;margin:0 auto;padding:16px 22px 80px}
+  #list{display:flex;flex-direction:column;gap:10px}
+
+  .champ{
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--border);
+    border-left:3px solid var(--gold-dim);
+    border-radius:8px;
+    padding:10px 14px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .champ:hover{border-color:#2e3d52;border-left-color:var(--gold)}
+
+  /* --- Blind pick variant --- */
+  .champ.blind{
+    border-left-color:var(--blind-dim);
+    background:linear-gradient(180deg,#152825,#0f1a17);
+    margin-bottom:6px;
+  }
+  .champ.blind:hover{border-color:#2b7d6b;border-left-color:var(--blind)}
+  .champ.blind .champ-name{
+    color:#b8f4e5;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    font-size:14px;
+  }
+  .champ.blind .badge{
+    background:#123029;border-color:#2b7d6b;color:#8ce6c8;
+  }
+  .blind-badge{
+    width:48px;height:48px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;line-height:1;
+    color:var(--blind);
+    background:radial-gradient(circle at 50% 35%, #1c4438 0%, #0d1f18 70%);
+    border:1px solid var(--blind-dim);
+    border-radius:6px;
+    text-shadow:0 0 12px rgba(90,209,193,.55);
+  }
+  .champ.blind .add-input{
+    border-color:#2b4d47;
+  }
+  .champ.blind .add-input:focus{
+    border-color:var(--blind);
+    box-shadow:0 0 0 2px rgba(90,209,193,.18);
+  }
+
+  .champ-head{display:flex;align-items:center;gap:12px}
+
+  .avatar{
+    position:relative;flex:0 0 auto;overflow:hidden;
+    border-radius:6px;border:1px solid #2a3a4d;background:#0d141d;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .avatar img{width:100%;height:100%;display:block;object-fit:cover}
+  .avatar.lg{width:48px;height:48px}
+  .avatar.sm{width:22px;height:22px;border-radius:4px}
+  .avatar.fallback{
+    font-weight:700;color:var(--gold);background:#16202c;
+    font-size:15px;letter-spacing:.5px;
+  }
+  .avatar.sm.fallback{font-size:9px}
+
+  .champ-name{font-weight:600;font-size:16px;letter-spacing:.2px}
+  .badge{
+    background:#1c2836;border:1px solid var(--border);
+    color:var(--muted);border-radius:20px;padding:2px 9px;
+    font-size:11px;font-weight:700;
+  }
+  .icon-btn{
+    margin-left:auto;
+    background:transparent;border:1px solid transparent;border-radius:6px;
+    color:var(--muted);cursor:pointer;font-size:14px;line-height:1;
+    padding:6px 9px;transition:.15s;
+  }
+  .icon-btn:hover{color:var(--red);border-color:#7a3a3a;background:#241419}
+  .icon-btn.add:hover{color:var(--green);border-color:#2b7d6b;background:#12241f}
+
+  .counters{
+    display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+    margin-top:10px;padding-left:60px;
+  }
+  @media (max-width:640px){
+    .counters{padding-left:0}
+  }
+
+  /* ---------- Counter chips (drag &amp; drop) ---------- */
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:#18222f;border:1px solid #26344a;border-radius:20px;
+    padding:3px 6px 3px 4px;font-size:13px;
+    transition:border-color .15s, background .15s, box-shadow .15s, opacity .15s;
+    cursor:grab;
+    user-select:none;
+  }
+  .chip:hover{border-color:var(--gold-dim);background:#1d2939}
+  .chip:active{cursor:grabbing}
+  .chip.dragging{opacity:.35}
+  .chip.drag-over-before{box-shadow:-3px 0 0 0 var(--gold)}
+  .chip.drag-over-after {box-shadow: 3px 0 0 0 var(--gold)}
+
+  .champ.blind .chip{
+    background:#162a26;border-color:#2b4d47;
+  }
+  .champ.blind .chip:hover{
+    border-color:var(--blind-dim);background:#1b332d;
+  }
+  .champ.blind .chip.drag-over-before{box-shadow:-3px 0 0 0 var(--blind)}
+  .champ.blind .chip.drag-over-after {box-shadow: 3px 0 0 0 var(--blind)}
+
+  .chip-x{
+    background:none;border:none;color:var(--muted);cursor:pointer;
+    font-size:15px;line-height:1;padding:0 2px;border-radius:50%;
+  }
+  .chip-x:hover{color:var(--red)}
+
+  .add-wrap{display:inline-flex;align-items:center;gap:2px}
+  .add-input{
+    background:#0e1620;border:1px dashed #2b3a4f;border-radius:20px;
+    padding:5px 12px;color:var(--text);font-size:13px;width:160px;outline:none;
+    transition:.15s;
+  }
+  .add-input::placeholder{color:#5f6d7e}
+  .add-input:focus{border-style:solid;border-color:var(--gold);width:190px}
+
+  .empty{
+    text-align:center;color:var(--muted);padding:60px 20px;
+    border:1px dashed var(--border);border-radius:8px;
+  }
+  footer{
+    max-width:1080px;margin:0 auto;padding:0 22px 40px;
+    color:#5f6d7e;font-size:12px;text-align:center;
+  }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;header&gt;
+  &lt;div class=&quot;brand&quot;&gt;
+    &lt;h1&gt;MATCHUPS &lt;span&gt;MID&lt;/span&gt;&lt;/h1&gt;
+    &lt;p&gt;Champions à counter &amp;amp; leurs counters — sauvegarde locale automatique&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;actions&quot;&gt;
+    &lt;button id=&quot;btnAddChamp&quot; class=&quot;btn primary&quot;&gt;+ Champion&lt;/button&gt;
+    &lt;button id=&quot;btnSort&quot; class=&quot;btn&quot;&gt;⇅ Trier A→Z&lt;/button&gt;
+    &lt;button id=&quot;btnExport&quot; class=&quot;btn&quot;&gt;⬇ Exporter JSON&lt;/button&gt;
+    &lt;button id=&quot;btnImport&quot; class=&quot;btn&quot;&gt;⬆ Importer JSON&lt;/button&gt;
+    &lt;button id=&quot;btnReset&quot; class=&quot;btn danger-ghost&quot;&gt;↺ Réinitialiser&lt;/button&gt;
+    &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.json,application/json&quot; hidden&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;div class=&quot;add-panel&quot; id=&quot;addPanel&quot;&gt;
+  &lt;input id=&quot;newChampInput&quot; list=&quot;all-champions&quot; placeholder=&quot;Nom du champion à counter (ex : Ahri)&quot; autocomplete=&quot;off&quot;&gt;
+  &lt;button id=&quot;newChampBtn&quot; class=&quot;btn primary&quot;&gt;Ajouter&lt;/button&gt;
+  &lt;button id=&quot;newChampCancel&quot; class=&quot;btn&quot;&gt;Annuler&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;toolbar&quot;&gt;
+  &lt;input id=&quot;search&quot; class=&quot;search&quot; type=&quot;search&quot; placeholder=&quot;🔎 Rechercher un champion à counter…&quot;&gt;
+  &lt;div class=&quot;meta&quot;&gt;
+    &lt;span id=&quot;count&quot;&gt;&lt;/span&gt;
+    &lt;span id=&quot;saveState&quot; class=&quot;save-state&quot;&gt;&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;main&gt;
+  &lt;div id=&quot;list&quot;&gt;&lt;/div&gt;
+&lt;/main&gt;
+
+&lt;footer&gt;Astuce : tape le nom d&#x27;un counter puis &lt;b&gt;Entrée&lt;/b&gt; (ou clique sur +). Tu peux en ajouter plusieurs séparés par des virgules. &lt;b&gt;Glisse-dépose&lt;/b&gt; un counter pour changer son ordre de counterpick. &lt;b&gt;Clique&lt;/b&gt; sur un counter : Lolalytics s&#x27;ouvre au premier plan et l&#x27;analyse Claude en arrière-plan — pour ouvrir les deux en un clic, autorise les pop-ups pour cette page (une seule fois).&lt;/footer&gt;
+
+&lt;datalist id=&quot;all-champions&quot;&gt;&lt;/datalist&gt;
+
+&lt;script&gt;
+(function(){
+  &#x27;use strict&#x27;;
+
+  /* =========================================================
+     CONFIG
+     ========================================================= */
+  const STORAGE_KEY     = &#x27;lol-mid-matchups-v1&#x27;;
+  const FALLBACK_VER    = &#x27;14.24.1&#x27;;
+  const BLIND_PICK_KEY  = &#x27;__blind_pick__&#x27;;
+  const ICON_BASE       = v =&gt; `https://ddragon.leagueoflegends.com/cdn/${v}/img/champion/`;
+
+  /* =========================================================
+     CONFIG PAR DÉFAUT = vide
+     ========================================================= */
+  const DEFAULT_JSON = `{ &quot;version&quot;: 1, &quot;blindPick&quot;: [], &quot;champions&quot;: [] }`;
+
+  /* =========================================================
+     ÉTAT
+     ========================================================= */
+  let ddVersion  = FALLBACK_VER;
+  let champIndex = {};        // nom normalisé -&gt; { id, name }
+  let state      = null;
+  let saveTimer  = null;
+  let dragChip   = null;      // { targetKey, name } pendant un drag
+
+  const $ = s =&gt; document.querySelector(s);
+  const listEl      = $(&#x27;#list&#x27;);
+  const searchEl    = $(&#x27;#search&#x27;);
+  const countEl     = $(&#x27;#count&#x27;);
+  const saveStateEl = $(&#x27;#saveState&#x27;);
+  const datalistEl  = $(&#x27;#all-champions&#x27;);
+
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+  function normalize(s){
+    return String(s).toLowerCase()
+      .normalize(&#x27;NFD&#x27;).replace(/[\u0300-\u036f]/g,&#x27;&#x27;)
+      .replace(/[^a-z0-9]/g,&#x27;&#x27;);
+  }
+
+  const SPECIAL_IDS = {
+    &#x27;LeBlanc&#x27;:&#x27;Leblanc&#x27;,
+    &#x27;Wukong&#x27;:&#x27;MonkeyKing&#x27;,
+    &#x27;RenataGlasc&#x27;:&#x27;Renata&#x27;,
+    &#x27;Nunu&amp;Willump&#x27;:&#x27;Nunu&#x27;,
+    &#x27;ChoGath&#x27;:&#x27;Chogath&#x27;,
+    &#x27;DrMundo&#x27;:&#x27;DrMundo&#x27;,
+    &#x27;TahmKench&#x27;:&#x27;TahmKench&#x27;,
+    &#x27;AurelionSol&#x27;:&#x27;AurelionSol&#x27;,
+    &#x27;TwistedFate&#x27;:&#x27;TwistedFate&#x27;
+  };
+
+  function slug(name){
+    const s = String(name).replace(/[&#x27;’]/g,&#x27;&#x27;).replace(/[^A-Za-z0-9]/g,&#x27;&#x27;);
+    return SPECIAL_IDS[s] || s;
+  }
+
+  function prettify(name){
+    return String(name).trim().replace(/(^|\s)\S/g, c =&gt; c.toUpperCase());
+  }
+
+  function initials(name){
+    return String(name).split(/[\s&#x27;’\-]+/).filter(Boolean)
+      .slice(0,2).map(w =&gt; w[0].toUpperCase()).join(&#x27;&#x27;);
+  }
+
+  function iconUrl(entry){
+    return ICON_BASE(ddVersion) + (entry.id || slug(entry.name)) + &#x27;.png&#x27;;
+  }
+
+  function el(tag, cls, text){
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+
+  /* =========================================================
+     DONNÉES : création / chargement / sauvegarde
+     ========================================================= */
+  function buildDefaultState(){
+    try{
+      const parsed = sanitizeState(JSON.parse(DEFAULT_JSON));
+      if (parsed) return parsed;
+    }catch(e){ console.warn(&#x27;JSON par défaut invalide&#x27;, e); }
+    return { version:1, blindPick:[], champions:[] };
+  }
+
+  function sanitizeState(raw){
+    const champs = Array.isArray(raw) ? raw : (raw &amp;&amp; raw.champions);
+    if (!Array.isArray(champs)) return null;
+
+    const out = [];
+    champs.forEach(c =&gt; {
+      if (!c) return;
+      const name = (typeof c === &#x27;string&#x27;) ? c : c.name;
+      if (!name) return;
+      const counters = Array.isArray(c.counters) ? c.counters : [];
+      out.push({
+        name: String(name),
+        id: c.id || slug(name),
+        counters: counters.map(k =&gt; {
+          if (typeof k === &#x27;string&#x27;) return { name: k, id: slug(k) };
+          if (k &amp;&amp; k.name)          return { name: k.name, id: k.id || slug(k.name) };
+          return null;
+        }).filter(Boolean)
+      });
+    });
+
+    // Liste &quot;Blind Pick&quot; (facultative pour rétro-compatibilité)
+    let blindPick = [];
+    if (raw &amp;&amp; Array.isArray(raw.blindPick)){
+      raw.blindPick.forEach(k =&gt; {
+        if (!k) return;
+        if (typeof k === &#x27;string&#x27;) blindPick.push({ name: k, id: slug(k) });
+        else if (k.name)           blindPick.push({ name: k.name, id: k.id || slug(k.name) });
+      });
+    }
+
+    return { version: 1, blindPick, champions: out };
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw){
+        const parsed = sanitizeState(JSON.parse(raw));
+        if (parsed) return parsed;
+      }
+    }catch(e){ console.warn(&#x27;Lecture localStorage impossible&#x27;, e); }
+    return buildDefaultState();
+  }
+
+  function save(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      flashSaved();
+    }catch(e){ console.warn(&#x27;Sauvegarde impossible&#x27;, e); }
+  }
+
+  function flashSaved(){
+    saveStateEl.textContent = &#x27;✓ sauvegardé&#x27;;
+    saveStateEl.classList.add(&#x27;show&#x27;);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() =&gt; saveStateEl.classList.remove(&#x27;show&#x27;), 1400);
+  }
+
+  /* =========================================================
+     RÉSOLUTION DES NOMS -&gt; ID DATA DRAGON
+     ========================================================= */
+  function resolveName(rawName){
+    const clean = prettify(rawName);
+    const hit = champIndex[normalize(clean)];
+    if (hit) return { name: hit.name, id: hit.id };
+    return { name: clean, id: slug(clean) };
+  }
+
+  function resolveAllIds(){
+    state.champions.forEach(c =&gt; {
+      const hit = champIndex[normalize(c.name)];
+      if (hit) c.id = hit.id;
+      c.counters.forEach(k =&gt; {
+        const hit2 = champIndex[normalize(k.name)];
+        if (hit2){ k.id = hit2.id; k.name = hit2.name; }
+      });
+    });
+    state.blindPick.forEach(k =&gt; {
+      const hit = champIndex[normalize(k.name)];
+      if (hit){ k.id = hit.id; k.name = hit.name; }
+    });
+  }
+
+  /* =========================================================
+     ACCÈS AUX LISTES CIBLES (champion normal OU blind pick)
+     ========================================================= */
+  function getTargetList(targetKey){
+    if (targetKey === BLIND_PICK_KEY) return state.blindPick;
+    const c = state.champions.find(x =&gt; x.name === targetKey);
+    return c ? c.counters : null;
+  }
+
+  /* =========================================================
+     RENDU
+     ========================================================= */
+  function avatar(entry, size){
+    const wrap = el(&#x27;div&#x27;, &#x27;avatar &#x27; + size);
+    const img  = document.createElement(&#x27;img&#x27;);
+    img.src = iconUrl(entry);
+    img.alt = entry.name;
+    img.loading = &#x27;lazy&#x27;;
+    img.draggable = false;
+    img.onerror = () =&gt; {
+      img.remove();
+      wrap.classList.add(&#x27;fallback&#x27;);
+      wrap.textContent = initials(entry.name);
+    };
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  function clearDragOver(except){
+    document.querySelectorAll(&#x27;.chip.drag-over-before, .chip.drag-over-after&#x27;)
+      .forEach(c =&gt; { if (c !== except) c.classList.remove(&#x27;drag-over-before&#x27;,&#x27;drag-over-after&#x27;); });
+  }
+
+  /* ---------- Lien Lolalytics ---------- */
+  const LOLALYTICS_PARAMS = &#x27;lane=middle&amp;tier=platinum_plus&amp;patch=30&#x27;;
+  const LOLALYTICS_SLUG_FIX = { nunuwillump:&#x27;nunu&#x27;, renataglasc:&#x27;renata&#x27;, monkeyking:&#x27;wukong&#x27; };
+
+  function lolalyticsSlug(name){
+    const k = String(name).toLowerCase()
+      .normalize(&#x27;NFD&#x27;).replace(/[\u0300-\u036f]/g, &#x27;&#x27;)
+      .replace(/[^a-z0-9]/g, &#x27;&#x27;);
+    return LOLALYTICS_SLUG_FIX[k] || k;
+  }
+
+  /* counter ... vs ... champion ciblé (ligne) */
+  function lolalyticsUrl(targetKey, counterName){
+    const counter = lolalyticsSlug(counterName);
+    if (targetKey === BLIND_PICK_KEY){
+      // ligne Blind Pick : pas d&#x27;adversaire -&gt; page build du champion
+      return &#x27;https://lolalytics.com/fr/lol/&#x27; + counter + &#x27;/build/?&#x27; + LOLALYTICS_PARAMS;
+    }
+    return &#x27;https://lolalytics.com/fr/lol/&#x27; + counter + &#x27;/vs/&#x27; + lolalyticsSlug(targetKey) + &#x27;/build/?&#x27; + LOLALYTICS_PARAMS;
+  }
+
+  /* ---------- Ouverture : Claude (arrière-plan) puis Lolalytics (premier plan) ---------- */
+  /* Le dernier onglet ouvert passe au premier plan : on ouvre donc Claude d&#x27;abord, puis Lolalytics.
+     Attention : un navigateur n&#x27;autorise par défaut qu&#x27;UN onglet par clic. Pour en ouvrir deux d&#x27;un coup,
+     il faut autoriser les pop-ups pour cette page (une seule fois). Sinon on le détecte et on l&#x27;explique. */
+  function showPopupHelp(links){
+    const old = document.getElementById(&#x27;popupToast&#x27;);
+    if (old) old.remove();
+    const t = document.createElement(&#x27;div&#x27;);
+    t.id = &#x27;popupToast&#x27;;
+    t.className = &#x27;popup-toast&#x27;;
+    const msg = document.createElement(&#x27;span&#x27;);
+    msg.textContent = &quot;Ton navigateur ne laisse ouvrir qu&#x27;un onglet par clic. Pour avoir Lolalytics + Claude d&#x27;un coup, &quot; +
+      &quot;autorise les pop-ups pour cette page (icône dans la barre d&#x27;adresse → « Toujours autoriser »), puis reclique. &quot; +
+      &quot;En attendant :&quot;;
+    t.appendChild(msg);
+    links.forEach(b =&gt; {
+      const a = document.createElement(&#x27;a&#x27;);
+      a.href = b.url; a.target = &#x27;_blank&#x27;; a.rel = &#x27;noopener&#x27;; a.textContent = b.label;
+      t.appendChild(a);
+    });
+    const x = document.createElement(&#x27;button&#x27;);
+    x.textContent = &#x27;×&#x27;;
+    x.onclick = () =&gt; t.remove();
+    t.appendChild(x);
+    document.body.appendChild(t);
+    setTimeout(() =&gt; t.remove(), 30000);
+  }
+
+  function openTabs(lolaUrl, prompt){
+    const claudeUrl = &#x27;https://claude.ai/new?q=&#x27; + encodeURIComponent(prompt);
+    const wc = window.open(claudeUrl, &#x27;_blank&#x27;);   // 1) Claude -&gt; finira en arrière-plan
+    const wl = window.open(lolaUrl, &#x27;_blank&#x27;);     // 2) Lolalytics -&gt; reste au premier plan
+    const both = [
+      { url: lolaUrl,   label: &#x27;Ouvrir Lolalytics&#x27; },
+      { url: claudeUrl, label: &#x27;Ouvrir Claude&#x27; }
+    ];
+    if (wl){
+      try{ wl.opener = null; }catch(err){}
+      if (wc){ try{ wc.opener = null; }catch(err){} }
+      else showPopupHelp([both[1]]);
+    } else {
+      // 2e onglet bloqué : on referme Claude pour rester sur cette page et expliquer pourquoi
+      if (wc){ try{ wc.close(); }catch(err){} }
+      showPopupHelp(both);
+    }
+  }
+
+  function matchupPrompt(targetKey, counterName){
+    if (targetKey === BLIND_PICK_KEY){
+      return &#x27;Je joue &#x27; + counterName + &#x27; en midlane sur League of Legends. &#x27; +
+        &#x27;Donne-moi le détail de ce champion en blind pick : comment jouer le early (niveaux 1 à 6, trades, gestion de la wave) &#x27; +
+        &#x27;et ses power spikes. Soit extremement synthétique&#x27;;
+    }
+    return &#x27;Je joue &#x27; + counterName + &#x27; contre &#x27; + targetKey + &#x27; en midlane sur League of Legends. &#x27; +
+      &#x27;Donne-moi le détail de ce matchup : comment jouer le early (niveaux 1 à 6, trades, gestion de la wave) &#x27; +
+      &#x27;et les power spikes de chacuns. Soit extremement synthétique&#x27;;
+  }
+
+  function openMatchup(targetKey, counterName){
+    openTabs(lolalyticsUrl(targetKey, counterName), matchupPrompt(targetKey, counterName));
+  }
+
+  function counterChip(targetKey, counter){
+    const chip = el(&#x27;div&#x27;,&#x27;chip&#x27;);
+    chip.draggable = true;
+    chip.dataset.counter = counter.name;
+    chip.title = counter.name + &#x27; — clic : Lolalytics + analyse Claude · glisse-dépose pour réordonner&#x27;;
+
+    chip.appendChild(avatar(counter,&#x27;sm&#x27;));
+    chip.appendChild(el(&#x27;span&#x27;, null, counter.name));
+
+    const x = el(&#x27;button&#x27;,&#x27;chip-x&#x27;,&#x27;×&#x27;);
+    x.draggable = false;
+    x.title = &#x27;Retirer &#x27; + counter.name;
+    x.addEventListener(&#x27;click&#x27;, () =&gt; removeCounter(targetKey, counter.name));
+    chip.appendChild(x);
+
+    /* ---------- Clic : ouvre le matchup sur Lolalytics ---------- */
+    chip.addEventListener(&#x27;click&#x27;, e =&gt; {
+      if (e.target.closest(&#x27;.chip-x&#x27;)) return;
+      openMatchup(targetKey, counter.name);
+    });
+
+    /* ---------- Drag &amp; drop (réordonne dans la même ligne) ---------- */
+    chip.addEventListener(&#x27;dragstart&#x27;, e =&gt; {
+      dragChip = { targetKey, name: counter.name };
+      chip.classList.add(&#x27;dragging&#x27;);
+      e.dataTransfer.effectAllowed = &#x27;move&#x27;;
+      try{ e.dataTransfer.setData(&#x27;text/plain&#x27;, counter.name); }catch(_){}
+    });
+
+    chip.addEventListener(&#x27;dragend&#x27;, () =&gt; {
+      chip.classList.remove(&#x27;dragging&#x27;);
+      clearDragOver(null);
+      dragChip = null;
+    });
+
+    chip.addEventListener(&#x27;dragover&#x27;, e =&gt; {
+      // On n&#x27;accepte le dépôt que dans la même ligne (même cible)
+      if (!dragChip || dragChip.targetKey !== targetKey) return;
+      if (dragChip.name === counter.name) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = &#x27;move&#x27;;
+
+      const r = chip.getBoundingClientRect();
+      const after = e.clientX &gt;= r.left + r.width / 2;
+
+      clearDragOver(chip);
+      chip.classList.toggle(&#x27;drag-over-before&#x27;, !after);
+      chip.classList.toggle(&#x27;drag-over-after&#x27;,  after);
+    });
+
+    chip.addEventListener(&#x27;dragleave&#x27;, e =&gt; {
+      if (e.relatedTarget &amp;&amp; chip.contains(e.relatedTarget)) return;
+      chip.classList.remove(&#x27;drag-over-before&#x27;,&#x27;drag-over-after&#x27;);
+    });
+
+    chip.addEventListener(&#x27;drop&#x27;, e =&gt; {
+      if (!dragChip || dragChip.targetKey !== targetKey) return;
+      if (dragChip.name === counter.name) return;
+      e.preventDefault();
+
+      const after = chip.classList.contains(&#x27;drag-over-after&#x27;);
+      const srcName = dragChip.name;
+      dragChip = null;
+      chip.classList.remove(&#x27;drag-over-before&#x27;,&#x27;drag-over-after&#x27;);
+      moveCounter(targetKey, srcName, counter.name, after);
+    });
+
+    return chip;
+  }
+
+  function addControl(targetKey, placeholder){
+    const wrap  = el(&#x27;div&#x27;,&#x27;add-wrap&#x27;);
+    const input = document.createElement(&#x27;input&#x27;);
+    input.className = &#x27;add-input&#x27;;
+    input.dataset.champ = targetKey;
+    input.placeholder = placeholder || &#x27;+ counter…&#x27;;
+    input.setAttribute(&#x27;list&#x27;,&#x27;all-champions&#x27;);
+    input.autocomplete = &#x27;off&#x27;;
+
+    const commit = () =&gt; {
+      const val = input.value.trim();
+      if (!val) return;
+      val.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(Boolean)
+         .forEach(name =&gt; addCounter(targetKey, name));
+      input.value = &#x27;&#x27;;
+      focusAddInput(targetKey);
+    };
+
+    input.addEventListener(&#x27;keydown&#x27;, e =&gt; {
+      if (e.key === &#x27;Enter&#x27;){ e.preventDefault(); commit(); }
+      else if (e.key === &#x27;Escape&#x27;){ input.value = &#x27;&#x27;; input.blur(); }
+    });
+
+    const btn = el(&#x27;button&#x27;,&#x27;icon-btn add&#x27;,&#x27;+&#x27;);
+    btn.title = &#x27;Ajouter ce counter&#x27;;
+    btn.addEventListener(&#x27;click&#x27;, commit);
+
+    wrap.appendChild(input);
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  /* Carte générique : champion OU blind pick */
+  function buildCard(opts){
+    const { targetKey, displayName, counters, id, blind } = opts;
+
+    const card = el(&#x27;div&#x27;, &#x27;champ&#x27; + (blind ? &#x27; blind&#x27; : &#x27;&#x27;));
+    card.dataset.champ = targetKey;
+
+    /* --- entête --- */
+    const head = el(&#x27;div&#x27;,&#x27;champ-head&#x27;);
+
+    if (blind){
+      head.appendChild(el(&#x27;div&#x27;,&#x27;blind-badge&#x27;,&#x27;★&#x27;));
+    } else {
+      head.appendChild(avatar({ name: displayName, id }, &#x27;lg&#x27;));
+    }
+
+    head.appendChild(el(&#x27;div&#x27;,&#x27;champ-name&#x27;, displayName));
+    head.appendChild(el(&#x27;span&#x27;,&#x27;badge&#x27;, String(counters.length)));
+
+    if (!blind){
+      const del = el(&#x27;button&#x27;,&#x27;icon-btn&#x27;,&#x27;✕&#x27;);
+      del.title = &#x27;Supprimer &#x27; + displayName + &#x27; de la liste&#x27;;
+      del.addEventListener(&#x27;click&#x27;, () =&gt; removeChampion(displayName));
+      head.appendChild(del);
+    }
+    card.appendChild(head);
+
+    /* --- counters / champions --- */
+    const body = el(&#x27;div&#x27;,&#x27;counters&#x27;);
+    counters.forEach(c =&gt; body.appendChild(counterChip(targetKey, c)));
+    body.appendChild(addControl(targetKey, blind ? &#x27;+ blind pick…&#x27; : &#x27;+ counter…&#x27;));
+    card.appendChild(body);
+
+    return card;
+  }
+
+  function championCard(champ){
+    return buildCard({
+      targetKey:   champ.name,
+      displayName: champ.name,
+      counters:    champ.counters,
+      id:          champ.id,
+      blind:       false
+    });
+  }
+
+  function blindPickCard(){
+    return buildCard({
+      targetKey:   BLIND_PICK_KEY,
+      displayName: &#x27;Blind Pick&#x27;,
+      counters:    state.blindPick,
+      blind:       true
+    });
+  }
+
+  function focusAddInput(targetKey){
+    const inputs = document.querySelectorAll(&#x27;.add-input&#x27;);
+    for (const i of inputs){
+      if (i.dataset.champ === targetKey){ i.focus(); return; }
+    }
+  }
+
+  function render(focusKey){
+    const q = normalize(searchEl.value);
+    listEl.innerHTML = &#x27;&#x27;;
+
+    let shown = 0;
+
+    // La ligne &quot;Blind Pick&quot; reste épinglée en haut — masquée quand on recherche
+    if (!q){
+      listEl.appendChild(blindPickCard());
+    }
+
+    state.champions.forEach(champ =&gt; {
+      if (q &amp;&amp; !normalize(champ.name).includes(q)) return;
+      listEl.appendChild(championCard(champ));
+      shown++;
+    });
+
+    if (shown === 0 &amp;&amp; q){
+      const empty = el(&#x27;div&#x27;,&#x27;empty&#x27;);
+      empty.innerHTML = &#x27;Aucun champion ne correspond à « &#x27; + searchEl.value.replace(/[&lt;&gt;&amp;]/g,&#x27;&#x27;) + &#x27; ».&#x27;;
+      listEl.appendChild(empty);
+    } else if (state.champions.length === 0 &amp;&amp; !q){
+      const empty = el(&#x27;div&#x27;,&#x27;empty&#x27;);
+      empty.innerHTML = &#x27;Aucun champion. Clique sur « + Champion » pour commencer.&#x27;;
+      listEl.appendChild(empty);
+    }
+
+    const n = state.champions.length;
+    const nb = state.blindPick.length;
+    countEl.textContent =
+      n + &#x27; champion&#x27; + (n &gt; 1 ? &#x27;s&#x27; : &#x27;&#x27;) + &#x27; suivi&#x27; + (n &gt; 1 ? &#x27;s&#x27; : &#x27;&#x27;) +
+      &#x27; • &#x27; + nb + &#x27; blind pick&#x27;;
+
+    if (focusKey) focusAddInput(focusKey);
+  }
+
+  /* =========================================================
+     MUTATIONS
+     ========================================================= */
+  function addChampion(rawName){
+    const res = resolveName(rawName);
+    if (!res.name) return false;
+    const exists = state.champions.some(c =&gt; normalize(c.name) === normalize(res.name));
+    if (exists){ render(); return false; }
+    state.champions.push({ name: res.name, id: res.id, counters: [] });
+    save(); fillDatalist(); render();
+    return true;
+  }
+
+  function removeChampion(name){
+    if (!confirm(&#x27;Supprimer « &#x27; + name + &#x27; » et tous ses counters ?&#x27;)) return;
+    state.champions = state.champions.filter(c =&gt; c.name !== name);
+    save(); render();
+  }
+
+  function addCounter(targetKey, rawCounter){
+    const list = getTargetList(targetKey);
+    if (!list) return;
+    const res = resolveName(rawCounter);
+    if (!res.name) return;
+    if (list.some(k =&gt; normalize(k.name) === normalize(res.name))) return;
+    list.push({ name: res.name, id: res.id });
+    save(); fillDatalist(); render(targetKey);
+  }
+
+  function removeCounter(targetKey, counterName){
+    const list = getTargetList(targetKey);
+    if (!list) return;
+    const filtered = list.filter(k =&gt; k.name !== counterName);
+    if (targetKey === BLIND_PICK_KEY){
+      state.blindPick = filtered;
+    } else {
+      const champ = state.champions.find(c =&gt; c.name === targetKey);
+      if (!champ) return;
+      champ.counters = filtered;
+    }
+    save(); render(targetKey);
+  }
+
+  /* ----- Réordonnancement par glisser-déposer (même ligne) ----- */
+  function moveCounter(targetKey, srcName, refName, after){
+    const list = getTargetList(targetKey);
+    if (!list) return;
+
+    const from = list.findIndex(k =&gt; k.name === srcName);
+    if (from === -1) return;
+
+    const [item] = list.splice(from, 1);
+
+    let to = list.findIndex(k =&gt; k.name === refName);
+    if (to === -1){ list.splice(from, 0, item); return; } // sécurité
+    if (after) to += 1;
+
+    list.splice(to, 0, item);
+
+    save();
+    render(targetKey);
+  }
+
+  function sortChampions(){
+    state.champions.sort((a,b) =&gt; a.name.localeCompare(b.name, &#x27;fr&#x27;));
+    state.champions.forEach(c =&gt; c.counters.sort((a,b) =&gt; a.name.localeCompare(b.name,&#x27;fr&#x27;)));
+    state.blindPick.sort((a,b) =&gt; a.name.localeCompare(b.name,&#x27;fr&#x27;));
+    save(); render();
+  }
+
+  /* =========================================================
+     DATALIST
+     ========================================================= */
+  function fillDatalist(){
+    const names = new Set(Object.values(champIndex).map(c =&gt; c.name));
+    state.champions.forEach(c =&gt; {
+      names.add(c.name);
+      c.counters.forEach(k =&gt; names.add(k.name));
+    });
+    state.blindPick.forEach(k =&gt; names.add(k.name));
+    datalistEl.innerHTML = &#x27;&#x27;;
+    [...names].sort((a,b) =&gt; a.localeCompare(b,&#x27;fr&#x27;)).forEach(n =&gt; {
+      const o = document.createElement(&#x27;option&#x27;);
+      o.value = n;
+      datalistEl.appendChild(o);
+    });
+  }
+
+  /* =========================================================
+     IMPORT / EXPORT
+     ========================================================= */
+  function exportJSON(){
+    const payload = {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      blindPick: state.blindPick,
+      champions: state.champions
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:&#x27;application/json&#x27; });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement(&#x27;a&#x27;);
+    a.href = url;
+    a.download = &#x27;matchups-mid-&#x27; + new Date().toISOString().slice(0,10) + &#x27;.json&#x27;;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() =&gt; URL.revokeObjectURL(url), 1000);
+  }
+
+  function importJSON(text){
+    let parsed;
+    try{ parsed = JSON.parse(text); }
+    catch(e){ alert(&#x27;Fichier JSON invalide : &#x27; + e.message); return; }
+
+    const incoming = sanitizeState(parsed);
+    if (!incoming){ alert(&#x27;Format non reconnu : il faut un tableau de champions ou un objet { &quot;champions&quot;: [...] }.&#x27;); return; }
+
+    const replace = confirm(
+      &#x27;Importer &#x27; + incoming.champions.length + &#x27; champion(s) et &#x27; + incoming.blindPick.length + &#x27; blind pick(s).\n\n&#x27; +
+      &#x27;OK     = REMPLACER la liste actuelle\n&#x27; +
+      &#x27;Annuler = FUSIONNER avec la liste actuelle&#x27;
+    );
+
+    if (replace){
+      state = incoming;
+    } else {
+      // Fusion blind pick
+      incoming.blindPick.forEach(k =&gt; {
+        if (!state.blindPick.some(x =&gt; normalize(x.name) === normalize(k.name))){
+          state.blindPick.push(k);
+        }
+      });
+      // Fusion champions
+      incoming.champions.forEach(inc =&gt; {
+        const existing = state.champions.find(c =&gt; normalize(c.name) === normalize(inc.name));
+        if (!existing){
+          state.champions.push(inc);
+        } else {
+          inc.counters.forEach(k =&gt; {
+            if (!existing.counters.some(x =&gt; normalize(x.name) === normalize(k.name))){
+              existing.counters.push(k);
+            }
+          });
+        }
+      });
+    }
+
+    resolveAllIds();
+    save(); fillDatalist(); render();
+  }
+
+  /* =========================================================
+     DATA DRAGON (icônes + autocomplétion)
+     ========================================================= */
+  async function loadDDragon(){
+    // 1) version la plus récente
+    try{
+      const r = await fetch(&#x27;https://ddragon.leagueoflegends.com/api/versions.json&#x27;);
+      if (r.ok){
+        const versions = await r.json();
+        if (Array.isArray(versions) &amp;&amp; versions[0]) ddVersion = versions[0];
+      }
+    }catch(e){ /* hors-ligne : on garde la version de secours */ }
+
+    // 2) index des champions
+    try{
+      const r = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddVersion}/data/en_US/champion.json`);
+      if (r.ok){
+        const data = await r.json();
+        Object.values(data.data).forEach(c =&gt; {
+          champIndex[normalize(c.name)] = { id: c.id, name: c.name };
+        });
+      }
+    }catch(e){ /* hors-ligne : on utilisera les slugs */ }
+
+    resolveAllIds();
+    fillDatalist();
+    save();
+    render();
+  }
+
+  /* =========================================================
+     ÉVÉNEMENTS
+     ========================================================= */
+  function bindEvents(){
+    searchEl.addEventListener(&#x27;input&#x27;, () =&gt; render());
+
+    $(&#x27;#btnExport&#x27;).addEventListener(&#x27;click&#x27;, exportJSON);
+
+    $(&#x27;#btnImport&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; $(&#x27;#fileInput&#x27;).click());
+    $(&#x27;#fileInput&#x27;).addEventListener(&#x27;change&#x27;, e =&gt; {
+      const file = e.target.files &amp;&amp; e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () =&gt; importJSON(String(reader.result));
+      reader.readAsText(file);
+      e.target.value = &#x27;&#x27;;
+    });
+
+    $(&#x27;#btnReset&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      if (!confirm(&#x27;Tout effacer (champions, counters et blind pick) ?\n(Tes modifications actuelles seront perdues)&#x27;)) return;
+      state = buildDefaultState();
+      resolveAllIds();
+      save(); fillDatalist(); render();
+    });
+
+    $(&#x27;#btnSort&#x27;).addEventListener(&#x27;click&#x27;, sortChampions);
+
+    // panneau &quot;+ Champion&quot;
+    const panel = $(&#x27;#addPanel&#x27;);
+    const input = $(&#x27;#newChampInput&#x27;);
+
+    $(&#x27;#btnAddChamp&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      panel.classList.toggle(&#x27;open&#x27;);
+      if (panel.classList.contains(&#x27;open&#x27;)) input.focus();
+    });
+    $(&#x27;#newChampCancel&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      panel.classList.remove(&#x27;open&#x27;);
+      input.value = &#x27;&#x27;;
+    });
+
+    const submitNew = () =&gt; {
+      const v = input.value.trim();
+      if (!v) return;
+      addChampion(v);
+      input.value = &#x27;&#x27;;
+      input.focus();
+    };
+    $(&#x27;#newChampBtn&#x27;).addEventListener(&#x27;click&#x27;, submitNew);
+    input.addEventListener(&#x27;keydown&#x27;, e =&gt; {
+      if (e.key === &#x27;Enter&#x27;){ e.preventDefault(); submitNew(); }
+      if (e.key === &#x27;Escape&#x27;){ panel.classList.remove(&#x27;open&#x27;); input.value = &#x27;&#x27;; }
+    });
+  }
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+  function init(){
+    state = loadState();
+    bindEvents();
+    fillDatalist();
+    render();
+    loadDDragon();          // asynchrone : met à jour icônes + autocomplétion
+  }
+
+  init();
+})();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;"></iframe>
+    <iframe id="precis" title="Matchup précis" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;color-scheme&quot; content=&quot;dark&quot;&gt;
+&lt;title&gt;Matchup précis — League of Legends&lt;/title&gt;
+&lt;style&gt;
+  :root{
+    --bg:#0a0e14; --panel:#111823; --panel2:#161f2c; --border:#243040;
+    --gold:#c8aa6e; --gold-dim:#785a28; --text:#e8eaed; --muted:#8b98a8;
+    --red:#e05a5a; --red-dim:#7a3a3a; --green:#3ecf8e;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 50% -250px, #16283d 0%, rgba(10,14,20,0) 65%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:&quot;Segoe UI&quot;,system-ui,-apple-system,&quot;Helvetica Neue&quot;,Arial,sans-serif;
+    font-size:15px;
+    min-height:100vh;
+  }
+  header{
+    position:sticky;top:0;z-index:20;
+    padding:14px 22px;
+    background:rgba(10,14,20,.86);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand h1{
+    margin:0;font-size:20px;letter-spacing:.5px;font-weight:700;
+    background:linear-gradient(180deg,#f0e6d2,var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand h1 span{color:var(--gold);-webkit-text-fill-color:var(--gold)}
+  .brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+
+  main{max-width:820px;margin:0 auto;padding:36px 22px 80px}
+
+  .duel{
+    display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;
+  }
+  .side{
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 18px 18px;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    transition:border-color .15s;
+  }
+  .side.me {border-top:3px solid var(--gold-dim)}
+  .side.foe{border-top:3px solid var(--red-dim)}
+  .side.invalid{border-color:var(--red-dim)}
+  .label{
+    font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  }
+  .side.me  .label{color:var(--gold)}
+  .side.foe .label{color:var(--red)}
+
+  .avatar{
+    width:96px;height:96px;border-radius:50%;overflow:hidden;
+    border:2px solid var(--border);background:#0e1620;
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;font-weight:700;color:var(--muted);
+    transition:border-color .15s;
+  }
+  .side.me  .avatar.ok{border-color:var(--gold)}
+  .side.foe .avatar.ok{border-color:var(--red)}
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .side input{
+    width:100%;
+    background:#0e1620;border:1px solid var(--border);border-radius:6px;
+    padding:10px 12px;color:var(--text);font-size:15px;text-align:center;outline:none;
+  }
+  .side input:focus{border-color:var(--gold)}
+  .side input::placeholder{color:#5f6d7e}
+  .hint{min-height:16px;font-size:12px;color:var(--red)}
+
+  .swap{
+    appearance:none;cursor:pointer;
+    width:44px;height:44px;border-radius:50%;
+    background:var(--panel2);border:1px solid var(--border);color:var(--muted);
+    font-size:20px;line-height:1;transition:.15s;
+  }
+  .swap:hover{border-color:var(--gold-dim);color:var(--gold);transform:rotate(180deg)}
+
+  .go-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:30px}
+  .go{
+    appearance:none;cursor:pointer;
+    padding:14px 34px;border-radius:8px;
+    font-size:16px;font-weight:700;letter-spacing:.03em;
+    background:linear-gradient(180deg,#1d4d43,#12332d);
+    border:1px solid #2b7d6b;color:#c9fff0;
+    transition:.15s;
+  }
+  .go:hover:not(:disabled){border-color:var(--green);color:#fff;box-shadow:0 0 18px rgba(62,207,142,.18)}
+  .go:disabled{
+    cursor:not-allowed;opacity:.4;
+    background:var(--panel2);border-color:var(--border);color:var(--muted);
+  }
+  .params{font-size:12px;color:var(--muted)}
+
+  /* ---------- Toast pop-up bloqué ---------- */
+  .popup-toast{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:100;
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    max-width:min(92vw,640px);padding:10px 14px;
+    background:#161f2c;border:1px solid var(--gold-dim);border-radius:8px;
+    color:var(--text);font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.5);
+  }
+  .popup-toast a{color:var(--gold);font-weight:600}
+  .popup-toast button{appearance:none;cursor:pointer;background:none;border:0;color:var(--muted);font-size:18px;line-height:1}
+
+  @media (max-width:640px){
+    .duel{grid-template-columns:1fr}
+    .swap{justify-self:center;transform:rotate(90deg)}
+    .swap:hover{transform:rotate(270deg)}
+  }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;header&gt;
+  &lt;div class=&quot;brand&quot;&gt;
+    &lt;h1&gt;MATCHUP &lt;span&gt;PRÉCIS&lt;/span&gt;&lt;/h1&gt;
+    &lt;p&gt;Choisis ton champion et celui que tu affrontes, puis ouvre le détail sur Lolalytics&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;main&gt;
+  &lt;div class=&quot;duel&quot;&gt;
+    &lt;div class=&quot;side me&quot; id=&quot;sideMe&quot;&gt;
+      &lt;div class=&quot;label&quot;&gt;Je joue&lt;/div&gt;
+      &lt;div class=&quot;avatar&quot; id=&quot;avMe&quot;&gt;?&lt;/div&gt;
+      &lt;input id=&quot;inMe&quot; list=&quot;all-champions&quot; placeholder=&quot;Mon champion (ex : Ahri)&quot; autocomplete=&quot;off&quot; spellcheck=&quot;false&quot;&gt;
+      &lt;div class=&quot;hint&quot; id=&quot;hintMe&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;button class=&quot;swap&quot; id=&quot;swap&quot; title=&quot;Inverser les deux champions&quot;&gt;⇄&lt;/button&gt;
+
+    &lt;div class=&quot;side foe&quot; id=&quot;sideFoe&quot;&gt;
+      &lt;div class=&quot;label&quot;&gt;J&#x27;affronte&lt;/div&gt;
+      &lt;div class=&quot;avatar&quot; id=&quot;avFoe&quot;&gt;?&lt;/div&gt;
+      &lt;input id=&quot;inFoe&quot; list=&quot;all-champions&quot; placeholder=&quot;Champion adverse (ex : Sylas)&quot; autocomplete=&quot;off&quot; spellcheck=&quot;false&quot;&gt;
+      &lt;div class=&quot;hint&quot; id=&quot;hintFoe&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;go-wrap&quot;&gt;
+    &lt;button class=&quot;go&quot; id=&quot;go&quot; disabled&gt;⚔ Détail du matchup&lt;/button&gt;
+    &lt;div class=&quot;params&quot;&gt;Mid · Platinum+ — ouvre Lolalytics (premier plan) et une analyse Claude (onglet en arrière-plan) — pour ouvrir les deux en un clic, autorise les pop-ups pour cette page (une seule fois)&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/main&gt;
+
+&lt;datalist id=&quot;all-champions&quot;&gt;&lt;/datalist&gt;
+
+&lt;script&gt;
+(function(){
+  &#x27;use strict&#x27;;
+
+  const PARAMS = &#x27;lane=middle&amp;tier=platinum_plus&amp;patch=30&#x27;;
+  const SLUG_FIX = { nunuwillump:&#x27;nunu&#x27;, renataglasc:&#x27;renata&#x27;, monkeyking:&#x27;wukong&#x27; };
+
+  let ddVersion = &#x27;14.24.1&#x27;;
+  let index = {};          // nom normalisé -&gt; { id, name }
+  let indexLoaded = false;
+
+  const $ = s =&gt; document.querySelector(s);
+  const sides = {
+    me:  { card:$(&#x27;#sideMe&#x27;),  av:$(&#x27;#avMe&#x27;),  input:$(&#x27;#inMe&#x27;),  hint:$(&#x27;#hintMe&#x27;)  },
+    foe: { card:$(&#x27;#sideFoe&#x27;), av:$(&#x27;#avFoe&#x27;), input:$(&#x27;#inFoe&#x27;), hint:$(&#x27;#hintFoe&#x27;) }
+  };
+  const goBtn = $(&#x27;#go&#x27;);
+
+  function normalize(s){
+    return String(s).toLowerCase()
+      .normalize(&#x27;NFD&#x27;).replace(/[\u0300-\u036f]/g,&#x27;&#x27;)
+      .replace(/[^a-z0-9]/g,&#x27;&#x27;);
+  }
+
+  function lolalyticsSlug(name){
+    const k = normalize(name);
+    return SLUG_FIX[k] || k;
+  }
+
+  function initials(name){
+    return String(name).split(/[\s&#x27;’\-]+/).filter(Boolean)
+      .slice(0,2).map(w =&gt; w[0].toUpperCase()).join(&#x27;&#x27;);
+  }
+
+  /* Retourne { name, id } si le champion est reconnu, sinon null.
+     Si la liste Data Dragon n&#x27;a pas pu être chargée (hors-ligne), on accepte le texte tel quel. */
+  function resolve(raw){
+    const v = raw.trim();
+    if (!v) return null;
+    const hit = index[normalize(v)];
+    if (hit) return hit;
+    if (!indexLoaded) return { name: v, id: null };
+    return null;
+  }
+
+  function paintAvatar(side, res){
+    const av = side.av;
+    av.className = &#x27;avatar&#x27;;
+    av.textContent = &#x27;?&#x27;;
+    if (!res) return;
+    av.classList.add(&#x27;ok&#x27;);
+    if (!res.id){ av.textContent = initials(res.name); return; }
+    const img = document.createElement(&#x27;img&#x27;);
+    img.alt = res.name;
+    img.draggable = false;
+    img.src = `https://ddragon.leagueoflegends.com/cdn/${ddVersion}/img/champion/${res.id}.png`;
+    img.onerror = () =&gt; { img.remove(); av.textContent = initials(res.name); };
+    av.textContent = &#x27;&#x27;;
+    av.appendChild(img);
+  }
+
+  function update(){
+    const res = {};
+    Object.keys(sides).forEach(k =&gt; {
+      const s = sides[k];
+      const raw = s.input.value;
+      res[k] = resolve(raw);
+      const invalid = raw.trim() !== &#x27;&#x27; &amp;&amp; !res[k];
+      s.card.classList.toggle(&#x27;invalid&#x27;, invalid);
+      s.hint.textContent = invalid ? &#x27;Champion inconnu&#x27; : &#x27;&#x27;;
+      paintAvatar(s, res[k]);
+    });
+    goBtn.disabled = !(res.me &amp;&amp; res.foe);
+    return res;
+  }
+
+  /* ---------- Ouverture : Claude (arrière-plan) puis Lolalytics (premier plan) ---------- */
+  /* Le dernier onglet ouvert passe au premier plan : on ouvre donc Claude d&#x27;abord, puis Lolalytics.
+     Attention : un navigateur n&#x27;autorise par défaut qu&#x27;UN onglet par clic. Pour en ouvrir deux d&#x27;un coup,
+     il faut autoriser les pop-ups pour cette page (une seule fois). Sinon on le détecte et on l&#x27;explique. */
+  function showPopupHelp(links){
+    const old = document.getElementById(&#x27;popupToast&#x27;);
+    if (old) old.remove();
+    const t = document.createElement(&#x27;div&#x27;);
+    t.id = &#x27;popupToast&#x27;;
+    t.className = &#x27;popup-toast&#x27;;
+    const msg = document.createElement(&#x27;span&#x27;);
+    msg.textContent = &quot;Ton navigateur ne laisse ouvrir qu&#x27;un onglet par clic. Pour avoir Lolalytics + Claude d&#x27;un coup, &quot; +
+      &quot;autorise les pop-ups pour cette page (icône dans la barre d&#x27;adresse → « Toujours autoriser »), puis reclique. &quot; +
+      &quot;En attendant :&quot;;
+    t.appendChild(msg);
+    links.forEach(b =&gt; {
+      const a = document.createElement(&#x27;a&#x27;);
+      a.href = b.url; a.target = &#x27;_blank&#x27;; a.rel = &#x27;noopener&#x27;; a.textContent = b.label;
+      t.appendChild(a);
+    });
+    const x = document.createElement(&#x27;button&#x27;);
+    x.textContent = &#x27;×&#x27;;
+    x.onclick = () =&gt; t.remove();
+    t.appendChild(x);
+    document.body.appendChild(t);
+    setTimeout(() =&gt; t.remove(), 30000);
+  }
+
+  function openTabs(lolaUrl, prompt){
+    const claudeUrl = &#x27;https://claude.ai/new?q=&#x27; + encodeURIComponent(prompt);
+    const wc = window.open(claudeUrl, &#x27;_blank&#x27;);   // 1) Claude -&gt; finira en arrière-plan
+    const wl = window.open(lolaUrl, &#x27;_blank&#x27;);     // 2) Lolalytics -&gt; reste au premier plan
+    const both = [
+      { url: lolaUrl,   label: &#x27;Ouvrir Lolalytics&#x27; },
+      { url: claudeUrl, label: &#x27;Ouvrir Claude&#x27; }
+    ];
+    if (wl){
+      try{ wl.opener = null; }catch(err){}
+      if (wc){ try{ wc.opener = null; }catch(err){} }
+      else showPopupHelp([both[1]]);
+    } else {
+      // 2e onglet bloqué : on referme Claude pour rester sur cette page et expliquer pourquoi
+      if (wc){ try{ wc.close(); }catch(err){} }
+      showPopupHelp(both);
+    }
+  }
+
+  function matchupPrompt(me, foe){
+    return &#x27;Je joue &#x27; + me + &#x27; contre &#x27; + foe + &#x27; en midlane sur League of Legends. &#x27; +
+      &#x27;Donne-moi le détail de ce matchup : comment jouer le early (niveaux 1 à 6, trades, gestion de la wave) &#x27; +
+      &#x27;et les power spikes de chacuns. Soit extremement synthétique&#x27;;
+  }
+
+  function open(){
+    const r = update();
+    if (!r.me || !r.foe) return;
+    const url = &#x27;https://lolalytics.com/fr/lol/&#x27; + lolalyticsSlug(r.me.name) +
+                &#x27;/vs/&#x27; + lolalyticsSlug(r.foe.name) + &#x27;/build/?&#x27; + PARAMS;
+    openTabs(url, matchupPrompt(r.me.name, r.foe.name));
+  }
+
+  function fillDatalist(){
+    const dl = $(&#x27;#all-champions&#x27;);
+    dl.textContent = &#x27;&#x27;;
+    Object.values(index).map(c =&gt; c.name)
+      .sort((a,b) =&gt; a.localeCompare(b,&#x27;fr&#x27;))
+      .forEach(n =&gt; { const o = document.createElement(&#x27;option&#x27;); o.value = n; dl.appendChild(o); });
+  }
+
+  async function loadDDragon(){
+    try{
+      const r = await fetch(&#x27;https://ddragon.leagueoflegends.com/api/versions.json&#x27;);
+      if (r.ok){
+        const v = await r.json();
+        if (Array.isArray(v) &amp;&amp; v[0]) ddVersion = v[0];
+      }
+    }catch(e){ /* hors-ligne : version de secours */ }
+
+    try{
+      const r = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddVersion}/data/en_US/champion.json`);
+      if (r.ok){
+        const data = await r.json();
+        Object.values(data.data).forEach(c =&gt; { index[normalize(c.name)] = { id:c.id, name:c.name }; });
+        indexLoaded = Object.keys(index).length &gt; 0;
+      }
+    }catch(e){ /* hors-ligne : on accepte le texte saisi */ }
+
+    fillDatalist();
+    update();
+  }
+
+  /* ---------- Événements ---------- */
+  Object.keys(sides).forEach(k =&gt; {
+    const input = sides[k].input;
+    input.addEventListener(&#x27;input&#x27;, update);
+    input.addEventListener(&#x27;change&#x27;, update);
+    input.addEventListener(&#x27;focus&#x27;, () =&gt; input.select());
+    input.addEventListener(&#x27;keydown&#x27;, e =&gt; {
+      if (e.key !== &#x27;Enter&#x27;) return;
+      e.preventDefault();
+      if (k === &#x27;me&#x27; &amp;&amp; !sides.foe.input.value.trim()) sides.foe.input.focus();
+      else open();
+    });
+  });
+
+  $(&#x27;#swap&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+    const a = sides.me.input, b = sides.foe.input;
+    const t = a.value; a.value = b.value; b.value = t;
+    update();
+  });
+
+  goBtn.addEventListener(&#x27;click&#x27;, open);
+
+  update();
+  loadDDragon();
+})();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+  </div>
+</div>
+<script>
+const btns=document.querySelectorAll('nav button');
+function show(t){
+  btns.forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  document.querySelectorAll('iframe').forEach(f=>f.classList.toggle('active',f.id===t));
+  try{localStorage.setItem('lol-hub-tab',t)}catch(e){}
+}
+btns.forEach(b=>b.onclick=()=>show(b.dataset.t));
+try{const s=localStorage.getItem('lol-hub-tab');if(s)show(s)}catch(e){}
+</script>
+</body>
+</html>
