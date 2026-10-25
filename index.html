@@ -24,6 +24,26 @@ nav button.active{color:var(--gold2);background:#17232f;border-color:var(--gold)
 #frames{flex:1;min-width:0;min-height:0;position:relative}
 iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:var(--bg)}
 iframe.active{display:block}
+/* Bouton et panneau de synchronisation */
+nav .sync-btn{margin-top:auto;position:relative}
+nav .sync-btn.err::after{content:"";position:absolute;top:6px;right:10px;width:8px;height:8px;border-radius:50%;background:#e05a5a}
+.sp{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.sp[hidden]{display:none}
+.sp-card{width:100%;max-width:440px;background:#111823;border:1px solid var(--line);border-radius:12px;padding:18px;color:#e8eaed;font-size:14px}
+.sp-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.sp-head h2{margin:0;font-size:18px;color:var(--gold2)}
+.sp-card p{margin:0 0 10px}
+.sp-note{color:var(--muted);font-size:13px}
+.sp-state{color:#3ecf8e}
+.sp-err{color:#e05a5a}
+.sp-card label{display:block;margin-bottom:12px;color:var(--gold2);font-weight:600}
+.sp-card label small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.sp-card input{display:block;width:100%;margin-top:6px;background:#0e1620;border:1px solid var(--line);border-radius:6px;padding:9px 10px;color:#e8eaed;font:inherit;font-size:16px}
+.sp-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp-btn{appearance:none;cursor:pointer;background:#161f2c;border:1px solid var(--line);border-radius:6px;padding:8px 12px;color:#e8eaed;font:inherit;font-size:13px}
+.sp-btn:hover{border-color:var(--gold)}
+.sp-btn.primary{border-color:var(--gold);color:var(--gold2)}
+.sp-btn:disabled{opacity:.5}
 /* Téléphone : onglets en bas, toute la largeur pour le contenu */
 @media (max-width:600px){
   #app{flex-direction:column-reverse}
@@ -32,6 +52,7 @@ iframe.active{display:block}
   nav button{flex:1;min-width:0;padding:6px 2px;gap:3px;font-size:10px}
   nav button .ic{font-size:20px}
   nav button.active{box-shadow:inset 0 3px 0 var(--gold)}
+  nav .sync-btn{margin-top:0}
 }
 </style>
 </head>
@@ -44,6 +65,7 @@ iframe.active{display:block}
     <button data-t="precis" title="Matchup précis"><span class="ic">🎯</span>Matchup précis</button>
     <button data-t="champion" title="Data d'un champion"><span class="ic">📊</span>Data champion</button>
     <button data-t="runes" title="Runes et stuff"><span class="ic">🔮</span>Runes &amp; stuff</button>
+    <button id="syncBtn" class="sync-btn" title="Synchronisation entre appareils"><span class="ic">☁️</span>Synchro</button>
   </nav>
   <div id="frames">
     <iframe id="tiers" class="active" title="Tier Lists LoL" srcdoc="&lt;!doctype html&gt;
@@ -2930,8 +2952,14 @@ loadChamps();
 "></iframe>
   </div>
 </div>
+<div id="syncPanel" class="sp" hidden>
+  <div class="sp-card" role="dialog" aria-labelledby="spTitle">
+    <div class="sp-head"><h2 id="spTitle">Synchronisation</h2><button id="spClose" class="sp-btn">Fermer</button></div>
+    <div id="spBody"></div>
+  </div>
+</div>
 <script>
-const btns=document.querySelectorAll('nav button');
+const btns=document.querySelectorAll('nav button[data-t]');
 function show(t){
   btns.forEach(b=>b.classList.toggle('active',b.dataset.t===t));
   document.querySelectorAll('iframe').forEach(f=>f.classList.toggle('active',f.id===t));
@@ -2939,6 +2967,259 @@ function show(t){
 }
 btns.forEach(b=>b.onclick=()=>show(b.dataset.t));
 try{const s=localStorage.getItem('lol-hub-tab');if(s)show(s)}catch(e){}
+</script>
+<script>
+/* =========================================================
+   SYNCHRONISATION entre appareils via un dépôt GitHub privé
+   Un fichier JSON par onglet ; la version la plus récente gagne.
+   ========================================================= */
+(function(){
+  'use strict';
+  const CFG_KEY = 'lolapp-sync';
+  const DIR = 'lolapp';
+  const DEBOUNCE_MS = 3000;
+  const ITEMS = [
+    { key: 'lol-tierlists-v1',    file: 'tierlists.json', frame: 'tiers',    label: 'Tier lists',
+      isEmpty: d => !d || !(d.lists || []).some(l => (l.tiers || []).some(t => (t.champs || []).length)) },
+    { key: 'lol-mid-matchups-v1', file: 'matchups.json',  frame: 'matchups', label: 'Matchups Mid',
+      isEmpty: d => !d || (!(d.champions || []).length && !(d.blindPick || []).length) },
+    { key: 'lol-runes-v1',        file: 'runes.json',     frame: 'runes',    label: 'Runes & stuff',
+      isEmpty: d => !d || !(d.champions || []).length },
+  ];
+
+  const $ = s => document.querySelector(s);
+  const enc = new TextEncoder(), dec = new TextDecoder();
+  const toB64 = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
+  const fromB64 = b64 => Uint8Array.from(atob(String(b64).replace(/\s/g, '')), c => c.charCodeAt(0));
+  const parse = s => { try { return s ? JSON.parse(s) : null; } catch (e) { return null; } };
+  const now = () => new Date().toISOString();
+
+  class SyncError extends Error { constructor(code, msg){ super(msg); this.code = code; } }
+
+  /* ---------- configuration de cet appareil ---------- */
+  function readCfg(){
+    const c = parse(localStorage.getItem(CFG_KEY));
+    return c && c.repo && c.token ? Object.assign({ stamps: {}, syncedAt: {}, shas: {}, fresh: false, lastSync: null }, c) : null;
+  }
+  let cfg = readCfg();
+  const writeCfg = () => { try { if (cfg) localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} };
+  let status = { state: cfg ? 'idle' : 'off', message: '' };
+
+  /* ---------- détection des modifications faites dans les onglets ---------- */
+  const lastKnown = {};
+  ITEMS.forEach(i => { lastKnown[i.key] = localStorage.getItem(i.key); });
+  let timer = null;
+  function checkLocal(){
+    let changed = false;
+    ITEMS.forEach(i => {
+      const v = localStorage.getItem(i.key);
+      if (v === lastKnown[i.key]) return;
+      lastKnown[i.key] = v;
+      if (cfg){ cfg.stamps[i.key] = now(); changed = true; }
+    });
+    if (changed){ writeCfg(); clearTimeout(timer); timer = setTimeout(syncNow, DEBOUNCE_MS); }
+  }
+  window.addEventListener('storage', e => { if (ITEMS.some(i => i.key === e.key)) checkLocal(); });
+  setInterval(checkLocal, 2000);
+  const dirty = () => cfg && ITEMS.some(i => (cfg.stamps[i.key] || '') > (cfg.syncedAt[i.key] || ''));
+
+  /* ---------- API GitHub ---------- */
+  async function gh(c, method, path, body){
+    let r;
+    try{
+      r = await fetch('https://api.github.com/repos/' + c.repo + path, {
+        method, cache: 'no-store',
+        headers: Object.assign({ Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
+                               body ? { 'Content-Type': 'application/json' } : {}),
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    }catch(e){ throw new SyncError('network', 'Pas de connexion à GitHub.'); }
+    if (r.status === 401) throw new SyncError('auth', 'Clé d’accès refusée ou expirée : créez-en une nouvelle et reconnectez cet appareil.');
+    if (r.status === 403) throw new SyncError('forbidden', 'GitHub refuse l’accès : la clé doit avoir « Contents : Read and write » sur ce dépôt.');
+    return r;
+  }
+  async function listRemote(c){
+    const r = await gh(c, 'GET', '/contents/' + DIR);
+    if (r.status === 404) return {};
+    if (!r.ok) throw new SyncError('http', 'Erreur GitHub ' + r.status + '.');
+    const out = {};
+    (await r.json()).forEach(f => { if (f.type === 'file') out[f.name] = f.sha; });
+    return out;
+  }
+  async function readBlob(c, sha){
+    const r = await gh(c, 'GET', '/git/blobs/' + sha);
+    if (!r.ok) throw new SyncError('http', 'Erreur GitHub ' + r.status + '.');
+    return JSON.parse(dec.decode(fromB64((await r.json()).content)));
+  }
+  async function writeFile(c, name, doc, sha){
+    const r = await gh(c, 'PUT', '/contents/' + DIR + '/' + name, Object.assign({
+      message: 'lolapp : synchronisation',
+      content: toB64(enc.encode(JSON.stringify(doc, null, 1))),
+    }, sha ? { sha } : {}));
+    if (r.status === 409 || r.status === 422) throw new SyncError('conflict', 'Le dépôt a changé pendant l’envoi.');
+    if (!r.ok) throw new SyncError('http', 'Erreur GitHub ' + r.status + '.');
+    return (await r.json()).content.sha;
+  }
+
+  /* ---------- application d'une version reçue ---------- */
+  function applyRemote(item, doc){
+    const v = JSON.stringify(doc.donnees);
+    localStorage.setItem(item.key, v);
+    lastKnown[item.key] = v;
+    cfg.stamps[item.key] = cfg.syncedAt[item.key] = doc.majLe;
+    const f = document.getElementById(item.frame);
+    try { f.contentWindow.location.reload(); } catch (e) {}
+  }
+
+  /* ---------- une synchronisation ---------- */
+  async function syncCore(){
+    const remote = await listRemote(cfg);
+    for (const item of ITEMS){
+      const sha = remote[item.file];
+      const localStr = localStorage.getItem(item.key);
+      const local = parse(localStr);
+      const stamp = cfg.stamps[item.key] || '';
+      const push = async () => {
+        if (!local) return;
+        const at = stamp || now();
+        cfg.shas[item.key] = await writeFile(cfg, item.file, { app: 'lolapp', cle: item.key, majLe: at, donnees: local }, sha);
+        cfg.stamps[item.key] = cfg.syncedAt[item.key] = at;
+      };
+      if (!sha){
+        if (local && !item.isEmpty(local)) await push();
+        continue;
+      }
+      if (sha === cfg.shas[item.key] && !cfg.fresh){
+        if (stamp > (cfg.syncedAt[item.key] || '')) await push();
+        continue;
+      }
+      const doc = await readBlob(cfg, sha);
+      cfg.shas[item.key] = sha;
+      if (cfg.fresh){
+        // Première synchro de cet appareil : on demande en cas de désaccord.
+        const same = local && JSON.stringify(local) === JSON.stringify(doc.donnees);
+        if (same){ cfg.stamps[item.key] = cfg.syncedAt[item.key] = doc.majLe; continue; }
+        if (!local || item.isEmpty(local) ||
+            confirm(`« ${item.label} » : cet appareil et la copie en ligne sont différents.\n\nOK = garder la version EN LIGNE (celle de l'appareil est remplacée)\nAnnuler = garder la version de CET APPAREIL`)){
+          applyRemote(item, doc);
+        } else {
+          cfg.stamps[item.key] = now();
+          await push();
+        }
+        continue;
+      }
+      if ((doc.majLe || '') > stamp) applyRemote(item, doc);
+      else if (stamp > (doc.majLe || '')) await push();
+      else cfg.syncedAt[item.key] = stamp;
+    }
+    cfg.fresh = false;
+  }
+
+  let running = null, again = false;
+  async function syncNow(){
+    if (!cfg) return;
+    if (running){ again = true; return running; }
+    running = (async () => {
+      do {
+        again = false;
+        clearTimeout(timer);
+        if (navigator.onLine === false){ setStatus('offline'); break; }
+        setStatus('syncing');
+        for (let attempt = 1; ; attempt++){
+          try{
+            await syncCore();
+            cfg.lastSync = now(); writeCfg(); setStatus('ok');
+            break;
+          }catch(e){
+            writeCfg();
+            if (e.code === 'conflict' && attempt < 4) continue;
+            if (!(e instanceof SyncError)) console.error(e);
+            setStatus(e.code === 'network' ? 'offline' : 'error', e.message || String(e));
+            break;
+          }
+        }
+      } while (again && cfg);
+      running = null;
+    })();
+    return running;
+  }
+
+  /* ---------- panneau « Synchro » ---------- */
+  function setStatus(state, message){
+    status = { state, message: message || '' };
+    $('#syncBtn').classList.toggle('err', state === 'error');
+    if (!$('#syncPanel').hidden) renderPanel();
+  }
+  function stateLabel(){
+    const at = cfg && cfg.lastSync ? new Date(cfg.lastSync).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : null;
+    switch (status.state){
+      case 'syncing': return 'Synchronisation…';
+      case 'ok': return 'À jour (' + at + ')';
+      case 'offline': return 'Hors connexion' + (at ? ' · dernière synchro ' + at : '');
+      case 'error': return status.message;
+      default: return at ? 'Dernière synchro ' + at : 'En attente';
+    }
+  }
+  function renderPanel(){
+    const body = $('#spBody');
+    body.textContent = '';
+    const p = (text, cls) => { const e = document.createElement('p'); e.textContent = text; if (cls) e.className = cls; body.appendChild(e); return e; };
+    if (cfg){
+      p('Dépôt : ' + cfg.repo);
+      p('État : ' + stateLabel(), status.state === 'error' ? 'sp-err' : 'sp-state');
+      p('La synchro se fait à l’ouverture, quelques secondes après chaque modification et quand vous quittez l’app.', 'sp-note');
+      const row = document.createElement('div'); row.className = 'sp-actions';
+      const sync = document.createElement('button'); sync.className = 'sp-btn primary'; sync.textContent = 'Synchroniser maintenant';
+      sync.onclick = () => syncNow();
+      const off = document.createElement('button'); off.className = 'sp-btn'; off.textContent = 'Déconnecter cet appareil';
+      off.onclick = () => {
+        if (!confirm('Déconnecter cet appareil ? Ses données restent intactes, elles ne seront simplement plus synchronisées.')) return;
+        localStorage.removeItem(CFG_KEY); cfg = null; setStatus('off'); renderPanel();
+      };
+      row.append(sync, off); body.appendChild(row);
+      return;
+    }
+    p('Retrouvez vos tier lists, matchups et configs de runes sur tous vos appareils grâce à votre dépôt GitHub privé.', 'sp-note');
+    const form = document.createElement('form'); form.autocomplete = 'off';
+    form.innerHTML =
+      '<label>Dépôt GitHub privé<input name="repo" value="gab22222/lolapp-donnees" autocapitalize="off" autocorrect="off" spellcheck="false"></label>' +
+      '<label>Clé d’accès GitHub<small>Elle commence par github_pat_</small><input name="token" type="password" autocapitalize="off" autocorrect="off" spellcheck="false"></label>' +
+      '<div class="sp-actions"><button class="sp-btn primary" type="submit">Activer la synchronisation</button></div>';
+    form.onsubmit = async e => {
+      e.preventDefault();
+      const btn = form.querySelector('button'); btn.disabled = true; btn.textContent = 'Connexion…';
+      try{
+        const repo = form.repo.value.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/+$/, '').replace(/\.git$/i, '');
+        const token = form.token.value.trim();
+        if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) throw new SyncError('input', 'Indiquez le dépôt sous la forme utilisateur/nom.');
+        if (!token) throw new SyncError('input', 'Collez la clé d’accès GitHub.');
+        const c = { repo, token };
+        const r = await gh(c, 'GET', '');
+        if (r.status === 404) throw new SyncError('repo', 'Dépôt introuvable, ou la clé n’y a pas accès.');
+        if (!r.ok) throw new SyncError('http', 'Erreur GitHub ' + r.status + '.');
+        if (!(await r.json()).private) throw new SyncError('public', 'Ce dépôt est public : choisissez un dépôt privé.');
+        cfg = { repo, token, stamps: {}, syncedAt: {}, shas: {}, fresh: true, lastSync: null };
+        writeCfg();
+        await syncNow();
+        renderPanel();
+      }catch(err){
+        if (!(err instanceof SyncError)) console.error(err);
+        alert(err.message || 'Connexion impossible.');
+        btn.disabled = false; btn.textContent = 'Activer la synchronisation';
+      }
+    };
+    body.appendChild(form);
+  }
+
+  $('#syncBtn').onclick = () => { $('#syncPanel').hidden = false; renderPanel(); };
+  $('#spClose').onclick = () => { $('#syncPanel').hidden = true; };
+  $('#syncPanel').addEventListener('click', e => { if (e.target.id === 'syncPanel') e.target.hidden = true; });
+
+  document.addEventListener('visibilitychange', () => { checkLocal(); if (!document.hidden || dirty()) syncNow(); });
+  window.addEventListener('pagehide', () => { checkLocal(); if (dirty()) syncNow(); });
+  window.addEventListener('online', () => syncNow());
+  if (cfg) syncNow();
+})();
 </script>
 </body>
 </html>
