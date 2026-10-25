@@ -35,6 +35,7 @@ iframe.active{display:block}
     <button data-t="matchups" title="Matchups Mid"><span class="ic">⚔️</span>Matchups Mid</button>
     <button data-t="precis" title="Matchup précis"><span class="ic">🎯</span>Matchup précis</button>
     <button data-t="champion" title="Data d'un champion"><span class="ic">📊</span>Data champion</button>
+    <button data-t="runes" title="Runes et stuff"><span class="ic">🔮</span>Runes &amp; stuff</button>
   </nav>
   <div id="frames">
     <iframe id="tiers" class="active" title="Tier Lists LoL" srcdoc="&lt;!doctype html&gt;
@@ -2224,6 +2225,686 @@ loadChamps();
   });
 
   update();
+  loadDDragon();
+})();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+    <iframe id="runes" title="Runes et stuff" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;color-scheme&quot; content=&quot;dark&quot;&gt;
+&lt;title&gt;Runes &amp;amp; stuff — League of Legends&lt;/title&gt;
+&lt;style&gt;
+  :root{
+    --bg:#0a0e14; --panel:#111823; --panel2:#161f2c; --border:#243040;
+    --gold:#c8aa6e; --gold-dim:#785a28; --gold2:#f0e6d2; --text:#e8eaed; --muted:#8b98a8;
+    --red:#e05a5a; --green:#3ecf8e; --accent:#0ac8b9;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100vh;color:var(--text);
+    background:radial-gradient(1200px 600px at 50% -250px,#16283d 0%,rgba(10,14,20,0) 65%),var(--bg);
+    background-attachment:fixed;
+    font:15px/1.4 &quot;Segoe UI&quot;,system-ui,-apple-system,&quot;Helvetica Neue&quot;,Arial,sans-serif;
+  }
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer}
+  header{
+    position:sticky;top:0;z-index:20;padding:14px 22px;
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    background:rgba(10,14,20,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+  }
+  .brand{flex:1;min-width:200px}
+  .brand h1{
+    margin:0;font-size:20px;letter-spacing:.5px;font-weight:700;
+    background:linear-gradient(180deg,var(--gold2),var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand h1 span{color:var(--gold);-webkit-text-fill-color:var(--gold)}
+  .brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+  .btn{
+    background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:13px;
+  }
+  .btn:hover{border-color:var(--gold);color:var(--gold2)}
+  .btn.primary{background:linear-gradient(180deg,#1e2d3d,#142131);border-color:var(--gold);color:var(--gold2)}
+  .btn.danger:hover{border-color:var(--red);color:var(--red)}
+  .btn.small{padding:4px 9px;font-size:12px}
+  .save-state{font-size:12px;color:var(--green);opacity:0;transition:opacity .2s}
+  .save-state.show{opacity:1}
+
+  .layout{display:grid;grid-template-columns:260px 1fr;gap:18px;max-width:1200px;margin:0 auto;padding:18px 22px 80px}
+  @media (max-width:760px){.layout{grid-template-columns:1fr}}
+
+  /* ----- Liste des champions ----- */
+  .add-row{display:flex;gap:6px;margin-bottom:12px}
+  .add-row input{
+    flex:1;min-width:0;background:#0e1620;border:1px solid var(--border);border-radius:6px;padding:8px 10px;outline:none;
+  }
+  .add-row input:focus{border-color:var(--gold)}
+  .group-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+  .group-title.fav{color:var(--gold)}
+  .ch{
+    width:100%;display:flex;align-items:center;gap:10px;text-align:left;
+    background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:6px 8px;margin-bottom:6px;
+  }
+  .ch:hover{border-color:var(--gold-dim)}
+  .ch.active{border-color:var(--gold);background:var(--panel2)}
+  .ch.fav{box-shadow:inset 3px 0 0 var(--gold)}
+  .ch .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+  .ch .n{font-size:12px;color:var(--muted)}
+  .ch .star{color:var(--gold);font-size:14px}
+  .empty{color:var(--muted);font-size:14px;padding:18px;border:1px dashed var(--border);border-radius:10px;text-align:center}
+
+  .av{border-radius:50%;overflow:hidden;background:#0e1620;border:2px solid var(--border);flex:none;
+      display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+  .av img{width:100%;height:100%;object-fit:cover;display:block}
+  .av.s{width:36px;height:36px;font-size:12px}
+  .av.l{width:64px;height:64px;font-size:20px;border-color:var(--gold)}
+  .ch.fav .av{border-color:var(--gold)}
+
+  /* ----- Détail ----- */
+  .head{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:16px}
+  .head h2{margin:0;font-size:24px;color:var(--gold2);flex:1;min-width:140px}
+  .fav-btn.on{border-color:var(--gold);color:var(--gold)}
+
+  .cfg{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+  .cfg-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+  .cfg-top h3{margin:0;font-size:17px;flex:1;min-width:120px}
+  .summary{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+  .rgroup{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#0e1620;border:1px solid var(--border);border-radius:8px}
+  .ic{display:block;border-radius:50%;background:#0b111a}
+  .ic.key{width:44px;height:44px}
+  .ic.min{width:28px;height:28px}
+  .ic.path{width:22px;height:22px;opacity:.85}
+  .ic.shard{width:20px;height:20px;border:1px solid var(--border)}
+  .ic.none{border:1px dashed var(--border)}
+  .items{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .item{width:36px;height:36px;border-radius:5px;border:1px solid var(--gold-dim);display:block}
+  .muted{color:var(--muted);font-size:13px}
+
+  /* ----- Éditeur ----- */
+  .editor{margin-top:12px;border-top:1px solid var(--border);padding-top:12px;display:grid;gap:14px}
+  .sec-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  .pick{
+    appearance:none;padding:2px;border-radius:50%;background:transparent;border:2px solid transparent;opacity:.45;filter:grayscale(.8);
+    transition:.12s;
+  }
+  .pick:hover{opacity:.85;filter:none}
+  .pick.on{opacity:1;filter:none;border-color:var(--gold)}
+  .pick img{display:block;border-radius:50%}
+  .pick.path img{width:30px;height:30px}
+  .pick.key img{width:44px;height:44px}
+  .pick.min img{width:32px;height:32px}
+  .pick.shard img{width:24px;height:24px}
+  .pick.spell{border-radius:8px}
+  .pick.spell img{width:36px;height:36px;border-radius:6px}
+  .ic.spell{width:32px;height:32px;border-radius:6px}
+  .chosen{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;align-items:center}
+  .chosen .slot{position:relative}
+  .chosen .slot button{
+    position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;padding:0;
+    background:var(--red);border:0;color:#fff;font-size:12px;line-height:18px;
+  }
+  .item-search{width:100%;background:#0e1620;border:1px solid var(--border);border-radius:6px;padding:8px 10px;outline:none;margin:8px 0}
+  .item-search:focus{border-color:var(--gold)}
+  .grid{display:flex;flex-wrap:wrap;gap:4px;max-height:220px;overflow:auto;padding:4px;background:#0e1620;border:1px solid var(--border);border-radius:8px}
+  .grid button{padding:0;border:1px solid transparent;border-radius:5px;background:none}
+  .grid button:hover{border-color:var(--gold)}
+  .grid img{width:36px;height:36px;display:block;border-radius:4px}
+  #msg{color:#ffb36b;font-size:13px;margin-bottom:10px}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header&gt;
+  &lt;div class=&quot;brand&quot;&gt;
+    &lt;h1&gt;RUNES &lt;span&gt;&amp;amp; STUFF&lt;/span&gt;&lt;/h1&gt;
+    &lt;p&gt;Tes configs de sorts, runes et objets de départ par champion — sauvegarde locale automatique&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;span id=&quot;saveState&quot; class=&quot;save-state&quot;&gt;&lt;/span&gt;
+  &lt;button id=&quot;btnExport&quot; class=&quot;btn&quot; title=&quot;Télécharger une sauvegarde (.json)&quot;&gt;⬇ Exporter&lt;/button&gt;
+  &lt;button id=&quot;btnImport&quot; class=&quot;btn&quot; title=&quot;Charger une sauvegarde (.json)&quot;&gt;⬆ Importer&lt;/button&gt;
+  &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.json,application/json&quot; hidden&gt;
+&lt;/header&gt;
+
+&lt;div class=&quot;layout&quot;&gt;
+  &lt;aside&gt;
+    &lt;div class=&quot;add-row&quot;&gt;
+      &lt;input id=&quot;addChamp&quot; list=&quot;all-champions&quot; placeholder=&quot;Ajouter un champion&quot; autocomplete=&quot;off&quot; spellcheck=&quot;false&quot;&gt;
+      &lt;button id=&quot;addBtn&quot; class=&quot;btn primary&quot; title=&quot;Ajouter ce champion&quot;&gt;+&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;champList&quot;&gt;&lt;/div&gt;
+  &lt;/aside&gt;
+  &lt;section&gt;
+    &lt;div id=&quot;msg&quot; hidden&gt;&lt;/div&gt;
+    &lt;div id=&quot;detail&quot;&gt;&lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;
+&lt;datalist id=&quot;all-champions&quot;&gt;&lt;/datalist&gt;
+
+&lt;script&gt;
+(function(){
+  &#x27;use strict&#x27;;
+
+  const STORAGE_KEY = &#x27;lol-runes-v1&#x27;;
+  const DD = &#x27;https://ddragon.leagueoflegends.com&#x27;;
+  const IMG = DD + &#x27;/cdn/img/&#x27;;
+  const SHARD_IMG = IMG + &#x27;perk-images/StatMods/&#x27;;
+  // Fragments de stats : 3 lignes de 3 (non fournis par Data Dragon)
+  const SHARDS = [
+    [{ id: 5008, name: &#x27;Force adaptative&#x27;, icon: &#x27;StatModsAdaptiveForceIcon&#x27; },
+     { id: 5005, name: &quot;Vitesse d&#x27;attaque&quot;, icon: &#x27;StatModsAttackSpeedIcon&#x27; },
+     { id: 5007, name: &#x27;Accélération de compétence&#x27;, icon: &#x27;StatModsCDRScalingIcon&#x27; }],
+    [{ id: 5008, name: &#x27;Force adaptative&#x27;, icon: &#x27;StatModsAdaptiveForceIcon&#x27; },
+     { id: 5010, name: &#x27;Vitesse de déplacement&#x27;, icon: &#x27;StatModsMovementSpeedIcon&#x27; },
+     { id: 5001, name: &#x27;PV croissants&#x27;, icon: &#x27;StatModsHealthScalingIcon&#x27; }],
+    [{ id: 5011, name: &#x27;PV&#x27;, icon: &#x27;StatModsHealthPlusIcon&#x27; },
+     { id: 5013, name: &#x27;Ténacité et résistance aux ralentissements&#x27;, icon: &#x27;StatModsTenacityIcon&#x27; },
+     { id: 5001, name: &#x27;PV croissants&#x27;, icon: &#x27;StatModsHealthScalingIcon&#x27; }],
+  ];
+
+  let ddVersion = &#x27;16.21.1&#x27;;
+  let champIndex = {};   // nom normalisé -&gt; { id, name }
+  let paths = [];        // arbres de runes (Data Dragon)
+  let runeById = {};     // id -&gt; { name, icon, path }
+  let items = [];        // objets achetables sur la Faille
+  let itemById = {};
+  let spells = [];       // sorts d&#x27;invocateur de la Faille
+  let spellById = {};
+  let state = null;
+  let editing = null;    // id de la config en cours de modification
+  let saveTimer = null;
+
+  const $ = s =&gt; document.querySelector(s);
+  const uid = () =&gt; Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  function el(tag, cls, text){
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function normalize(s){
+    return String(s).toLowerCase().normalize(&#x27;NFD&#x27;).replace(/[̀-ͯ]/g, &#x27;&#x27;).replace(/[^a-z0-9]/g, &#x27;&#x27;);
+  }
+  function initials(name){
+    return String(name).split(/[\s&#x27;’\-]+/).filter(Boolean).slice(0, 2).map(w =&gt; w[0].toUpperCase()).join(&#x27;&#x27;);
+  }
+  function img(src, cls, title){
+    const i = document.createElement(&#x27;img&#x27;);
+    i.src = src; i.className = cls || &#x27;&#x27;; i.alt = title || &#x27;&#x27;; i.title = title || &#x27;&#x27;; i.loading = &#x27;lazy&#x27;; i.draggable = false;
+    return i;
+  }
+  function avatar(ch, size){
+    const w = el(&#x27;div&#x27;, &#x27;av &#x27; + size);
+    const i = img(`${DD}/cdn/${ddVersion}/img/champion/${ch.id}.png`, &#x27;&#x27;, ch.name);
+    i.onerror = () =&gt; { i.remove(); w.textContent = initials(ch.name); };
+    w.appendChild(i);
+    return w;
+  }
+
+  /* =========================================================
+     DONNÉES
+     ========================================================= */
+  function emptyRunes(){
+    return { primary: null, keystone: null, primaryMinors: [null, null, null], secondary: null, secondaryMinors: [], shards: [null, null, null] };
+  }
+  function sanitize(raw){
+    const list = Array.isArray(raw) ? raw : (raw &amp;&amp; raw.champions);
+    if (!Array.isArray(list)) return null;
+    return list.filter(c =&gt; c &amp;&amp; c.name).map(c =&gt; ({
+      id: String(c.id || c.name),
+      name: String(c.name),
+      fav: !!c.fav,
+      configs: (Array.isArray(c.configs) ? c.configs : []).filter(Boolean).map(k =&gt; {
+        const r = Object.assign(emptyRunes(), k.runes || {});
+        return {
+          id: String(k.id || uid()),
+          name: String(k.name || &#x27;Config&#x27;),
+          runes: {
+            primary: r.primary || null, keystone: r.keystone || null,
+            primaryMinors: [0, 1, 2].map(i =&gt; (Array.isArray(r.primaryMinors) &amp;&amp; r.primaryMinors[i]) || null),
+            secondary: r.secondary || null,
+            secondaryMinors: (Array.isArray(r.secondaryMinors) ? r.secondaryMinors : []).filter(Boolean).slice(0, 2),
+            shards: [0, 1, 2].map(i =&gt; (Array.isArray(r.shards) &amp;&amp; r.shards[i]) || null),
+          },
+          items: (Array.isArray(k.items) ? k.items : []).map(String),
+          spells: (Array.isArray(k.spells) ? k.spells : []).filter(Boolean).map(String).slice(0, 2),
+        };
+      }),
+    }));
+  }
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw){
+        const s = JSON.parse(raw);
+        const champs = sanitize(s);
+        if (champs) return { champions: champs, selected: s.selected || null };
+      }
+    }catch(e){ console.warn(&#x27;Lecture localStorage impossible&#x27;, e); }
+    return { champions: [], selected: null };
+  }
+  function save(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, champions: state.champions, selected: state.selected }));
+      const s = $(&#x27;#saveState&#x27;);
+      s.textContent = &#x27;✓ sauvegardé&#x27;;
+      s.classList.add(&#x27;show&#x27;);
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() =&gt; s.classList.remove(&#x27;show&#x27;), 1400);
+    }catch(e){ console.warn(&#x27;Sauvegarde impossible&#x27;, e); }
+  }
+  const cur = () =&gt; state.champions.find(c =&gt; c.id === state.selected) || null;
+
+  /* =========================================================
+     LISTE DES CHAMPIONS (favoris en premier)
+     ========================================================= */
+  function renderList(){
+    const box = $(&#x27;#champList&#x27;);
+    box.textContent = &#x27;&#x27;;
+    if (!state.champions.length){
+      box.appendChild(el(&#x27;div&#x27;, &#x27;empty&#x27;, &#x27;Ajoute un champion pour créer tes configs.&#x27;));
+      return;
+    }
+    const byName = (a, b) =&gt; a.name.localeCompare(b.name, &#x27;fr&#x27;);
+    const favs = state.champions.filter(c =&gt; c.fav).sort(byName);
+    const others = state.champions.filter(c =&gt; !c.fav).sort(byName);
+    const group = (title, list, cls) =&gt; {
+      if (!list.length) return;
+      box.appendChild(el(&#x27;div&#x27;, &#x27;group-title &#x27; + (cls || &#x27;&#x27;), title));
+      list.forEach(c =&gt; {
+        const b = el(&#x27;button&#x27;, &#x27;ch&#x27; + (c.fav ? &#x27; fav&#x27; : &#x27;&#x27;) + (c.id === state.selected ? &#x27; active&#x27; : &#x27;&#x27;));
+        b.title = c.name;
+        b.appendChild(avatar(c, &#x27;s&#x27;));
+        b.appendChild(el(&#x27;span&#x27;, &#x27;nm&#x27;, c.name));
+        b.appendChild(el(&#x27;span&#x27;, &#x27;n&#x27;, String(c.configs.length)));
+        if (c.fav) b.appendChild(el(&#x27;span&#x27;, &#x27;star&#x27;, &#x27;★&#x27;));
+        b.onclick = () =&gt; { state.selected = c.id; editing = null; save(); render(); };
+        box.appendChild(b);
+      });
+    };
+    group(&#x27;★ Favoris&#x27;, favs, &#x27;fav&#x27;);
+    group(favs.length ? &#x27;Autres&#x27; : &#x27;Mes champions&#x27;, others);
+  }
+
+  function resolveChamp(raw){
+    const v = raw.trim();
+    if (!v) return null;
+    const hit = champIndex[normalize(v)];
+    if (hit) return hit;
+    if (!Object.keys(champIndex).length) return { id: v.replace(/[^A-Za-z0-9]/g, &#x27;&#x27;), name: v };
+    return null;
+  }
+  function addChampion(){
+    const input = $(&#x27;#addChamp&#x27;);
+    const res = resolveChamp(input.value);
+    if (!res){ input.setCustomValidity(&#x27;Champion inconnu&#x27;); input.reportValidity(); return; }
+    let c = state.champions.find(x =&gt; x.id === res.id);
+    if (!c){ c = { id: res.id, name: res.name, fav: false, configs: [] }; state.champions.push(c); }
+    state.selected = c.id;
+    editing = null;
+    input.value = &#x27;&#x27;;
+    save(); render();
+  }
+
+  /* =========================================================
+     DÉTAIL D&#x27;UN CHAMPION
+     ========================================================= */
+  function renderDetail(){
+    const box = $(&#x27;#detail&#x27;);
+    box.textContent = &#x27;&#x27;;
+    const c = cur();
+    if (!c){
+      box.appendChild(el(&#x27;div&#x27;, &#x27;empty&#x27;, state.champions.length ? &#x27;Choisis un champion dans la liste.&#x27; : &#x27;Commence par ajouter un champion à gauche.&#x27;));
+      return;
+    }
+    const head = el(&#x27;div&#x27;, &#x27;head&#x27;);
+    head.appendChild(avatar(c, &#x27;l&#x27;));
+    head.appendChild(el(&#x27;h2&#x27;, &#x27;&#x27;, c.name));
+    const fav = el(&#x27;button&#x27;, &#x27;btn fav-btn&#x27; + (c.fav ? &#x27; on&#x27; : &#x27;&#x27;), c.fav ? &#x27;★ Favori&#x27; : &#x27;☆ Mettre en favori&#x27;);
+    fav.title = &#x27;Les favoris sont affichés en premier&#x27;;
+    fav.onclick = () =&gt; { c.fav = !c.fav; save(); render(); };
+    const add = el(&#x27;button&#x27;, &#x27;btn primary&#x27;, &#x27;+ Nouvelle config&#x27;);
+    add.onclick = () =&gt; {
+      const k = { id: uid(), name: &#x27;Config &#x27; + (c.configs.length + 1), spells: [], runes: emptyRunes(), items: [] };
+      c.configs.push(k); editing = k.id; save(); render();
+    };
+    const del = el(&#x27;button&#x27;, &#x27;btn danger&#x27;, &#x27;✕&#x27;);
+    del.title = &#x27;Retirer &#x27; + c.name + &#x27; et toutes ses configs&#x27;;
+    del.onclick = () =&gt; {
+      if (c.configs.length &amp;&amp; !confirm(`Retirer ${c.name} et ses ${c.configs.length} config(s) ? C&#x27;est définitif.`)) return;
+      state.champions = state.champions.filter(x =&gt; x !== c);
+      state.selected = null; editing = null; save(); render();
+    };
+    head.append(fav, add, del);
+    box.appendChild(head);
+
+    if (!c.configs.length){
+      box.appendChild(el(&#x27;div&#x27;, &#x27;empty&#x27;, &#x27;Aucune config pour &#x27; + c.name + &#x27;. Clique sur « + Nouvelle config ».&#x27;));
+      return;
+    }
+    c.configs.forEach(k =&gt; box.appendChild(configCard(c, k)));
+  }
+
+  function runeIcon(id, cls){
+    const r = runeById[id];
+    if (!r) return el(&#x27;span&#x27;, &#x27;ic none &#x27; + cls);
+    return img(IMG + r.icon, &#x27;ic &#x27; + cls, r.name);
+  }
+  function pathIcon(id){
+    const p = paths.find(x =&gt; x.id === id);
+    return p ? img(IMG + p.icon, &#x27;ic path&#x27;, p.name) : el(&#x27;span&#x27;, &#x27;ic none path&#x27;);
+  }
+  function shardIcon(row, id){
+    const s = SHARDS[row].find(x =&gt; x.id === id);
+    return s ? img(SHARD_IMG + s.icon + &#x27;.png&#x27;, &#x27;ic shard&#x27;, s.name) : el(&#x27;span&#x27;, &#x27;ic none shard&#x27;);
+  }
+  function spellIcon(id){
+    const sp = spellById[id];
+    return sp ? img(`${DD}/cdn/${ddVersion}/img/spell/${sp.image}`, &#x27;ic spell&#x27;, sp.name) : el(&#x27;span&#x27;, &#x27;ic none spell&#x27;);
+  }
+  function itemIcon(id){
+    const it = itemById[id];
+    const i = img(`${DD}/cdn/${ddVersion}/img/item/${id}.png`, &#x27;item&#x27;, it ? `${it.name} (${it.gold} PO)` : id);
+    return i;
+  }
+
+  function configCard(c, k){
+    const card = el(&#x27;div&#x27;, &#x27;cfg&#x27;);
+    const top = el(&#x27;div&#x27;, &#x27;cfg-top&#x27;);
+    top.appendChild(el(&#x27;h3&#x27;, &#x27;&#x27;, k.name));
+    const ren = el(&#x27;button&#x27;, &#x27;btn small&#x27;, &#x27;Renommer&#x27;);
+    ren.onclick = () =&gt; {
+      const n = prompt(&#x27;Nouveau nom de la config :&#x27;, k.name);
+      if (n === null || !n.trim()) return;
+      k.name = n.trim(); save(); render();
+    };
+    const edit = el(&#x27;button&#x27;, &#x27;btn small&#x27; + (editing === k.id ? &#x27; primary&#x27; : &#x27;&#x27;), editing === k.id ? &#x27;Terminé&#x27; : &#x27;Modifier&#x27;);
+    edit.onclick = () =&gt; { editing = editing === k.id ? null : k.id; render(); };
+    const dup = el(&#x27;button&#x27;, &#x27;btn small&#x27;, &#x27;Dupliquer&#x27;);
+    dup.onclick = () =&gt; {
+      const copy = JSON.parse(JSON.stringify(k));
+      copy.id = uid(); copy.name = k.name + &#x27; (copie)&#x27;;
+      c.configs.splice(c.configs.indexOf(k) + 1, 0, copy);
+      save(); render();
+    };
+    const del = el(&#x27;button&#x27;, &#x27;btn small danger&#x27;, &#x27;Supprimer&#x27;);
+    del.onclick = () =&gt; {
+      if (!confirm(`Supprimer la config « ${k.name} » ?`)) return;
+      c.configs = c.configs.filter(x =&gt; x !== k);
+      if (editing === k.id) editing = null;
+      save(); render();
+    };
+    top.append(ren, edit, dup, del);
+    card.appendChild(top);
+
+    // Résumé : runes principales, secondaires, fragments, objets
+    const r = k.runes;
+    const sum = el(&#x27;div&#x27;, &#x27;summary&#x27;);
+    const g0 = el(&#x27;div&#x27;, &#x27;rgroup&#x27;);
+    g0.append(...[0, 1].map(i =&gt; spellIcon(k.spells[i])));
+    sum.appendChild(g0);
+    const g1 = el(&#x27;div&#x27;, &#x27;rgroup&#x27;);
+    g1.append(pathIcon(r.primary), runeIcon(r.keystone, &#x27;key&#x27;), ...r.primaryMinors.map(id =&gt; runeIcon(id, &#x27;min&#x27;)));
+    const g2 = el(&#x27;div&#x27;, &#x27;rgroup&#x27;);
+    g2.append(pathIcon(r.secondary), ...[0, 1].map(i =&gt; runeIcon(r.secondaryMinors[i], &#x27;min&#x27;)));
+    const g3 = el(&#x27;div&#x27;, &#x27;rgroup&#x27;);
+    g3.append(...r.shards.map((id, i) =&gt; shardIcon(i, id)));
+    sum.append(g1, g2, g3);
+    const its = el(&#x27;div&#x27;, &#x27;items&#x27;);
+    if (k.items.length) k.items.forEach(id =&gt; its.appendChild(itemIcon(id)));
+    else its.appendChild(el(&#x27;span&#x27;, &#x27;muted&#x27;, &#x27;Aucun objet&#x27;));
+    sum.appendChild(its);
+    card.appendChild(sum);
+
+    if (editing === k.id) card.appendChild(editor(k));
+    return card;
+  }
+
+  /* =========================================================
+     ÉDITEUR DE RUNES ET D&#x27;OBJETS
+     ========================================================= */
+  function pickBtn(cls, on, src, title, fn){
+    const b = el(&#x27;button&#x27;, &#x27;pick &#x27; + cls + (on ? &#x27; on&#x27; : &#x27;&#x27;));
+    b.type = &#x27;button&#x27;; b.title = title;
+    b.appendChild(img(src, &#x27;&#x27;, title));
+    b.onclick = fn;
+    return b;
+  }
+  function section(title){
+    const s = el(&#x27;div&#x27;);
+    s.appendChild(el(&#x27;div&#x27;, &#x27;sec-title&#x27;, title));
+    return s;
+  }
+
+  function editor(k){
+    const r = k.runes;
+    const ed = el(&#x27;div&#x27;, &#x27;editor&#x27;);
+    if (!paths.length){
+      ed.appendChild(el(&#x27;div&#x27;, &#x27;muted&#x27;, &#x27;Les sorts, runes et objets se chargent depuis Riot… (connexion internet nécessaire)&#x27;));
+      return ed;
+    }
+    const redo = () =&gt; { save(); render(); };
+
+    // Sorts d&#x27;invocateur : 2 au maximum ; un 3e remplace le plus ancien
+    const s0 = section(&quot;Sorts d&#x27;invocateur&quot;);
+    const sprow = el(&#x27;div&#x27;, &#x27;row&#x27;);
+    spells.forEach(sp =&gt; sprow.appendChild(pickBtn(&#x27;spell&#x27;, k.spells.includes(sp.id), `${DD}/cdn/${ddVersion}/img/spell/${sp.image}`, sp.name, () =&gt; {
+      if (k.spells.includes(sp.id)) k.spells = k.spells.filter(x =&gt; x !== sp.id);
+      else k.spells = k.spells.concat(sp.id).slice(-2);
+      redo();
+    })));
+    s0.appendChild(sprow);
+    ed.appendChild(s0);
+
+    // Arbre principal
+    const s1 = section(&#x27;Arbre principal&#x27;);
+    const prow = el(&#x27;div&#x27;, &#x27;row&#x27;);
+    paths.forEach(p =&gt; prow.appendChild(pickBtn(&#x27;path&#x27;, r.primary === p.id, IMG + p.icon, p.name, () =&gt; {
+      if (r.primary === p.id) return;
+      r.primary = p.id; r.keystone = null; r.primaryMinors = [null, null, null];
+      if (r.secondary === p.id){ r.secondary = null; r.secondaryMinors = []; }
+      redo();
+    })));
+    s1.appendChild(prow);
+    const P = paths.find(p =&gt; p.id === r.primary);
+    if (P){
+      P.slots.forEach((slot, si) =&gt; {
+        const row = el(&#x27;div&#x27;, &#x27;row&#x27;);
+        slot.forEach(ru =&gt; {
+          const on = si === 0 ? r.keystone === ru.id : r.primaryMinors[si - 1] === ru.id;
+          row.appendChild(pickBtn(si === 0 ? &#x27;key&#x27; : &#x27;min&#x27;, on, IMG + ru.icon, ru.name, () =&gt; {
+            if (si === 0) r.keystone = ru.id; else r.primaryMinors[si - 1] = ru.id;
+            redo();
+          }));
+        });
+        s1.appendChild(row);
+      });
+    }
+    ed.appendChild(s1);
+
+    // Arbre secondaire : 2 runes, sur 2 lignes différentes
+    const s2 = section(&#x27;Arbre secondaire&#x27;);
+    const srow = el(&#x27;div&#x27;, &#x27;row&#x27;);
+    paths.filter(p =&gt; p.id !== r.primary).forEach(p =&gt; srow.appendChild(pickBtn(&#x27;path&#x27;, r.secondary === p.id, IMG + p.icon, p.name, () =&gt; {
+      if (r.secondary === p.id) return;
+      r.secondary = p.id; r.secondaryMinors = []; redo();
+    })));
+    s2.appendChild(srow);
+    const S = paths.find(p =&gt; p.id === r.secondary);
+    if (S){
+      S.slots.slice(1).forEach(slot =&gt; {
+        const row = el(&#x27;div&#x27;, &#x27;row&#x27;);
+        const rowIds = slot.map(x =&gt; x.id);
+        slot.forEach(ru =&gt; {
+          row.appendChild(pickBtn(&#x27;min&#x27;, r.secondaryMinors.includes(ru.id), IMG + ru.icon, ru.name, () =&gt; {
+            let sel = r.secondaryMinors.filter(id =&gt; !rowIds.includes(id));   // une seule rune par ligne
+            if (!r.secondaryMinors.includes(ru.id)) sel.push(ru.id);
+            r.secondaryMinors = sel.slice(-2);                                  // 2 au maximum : la plus ancienne part
+            redo();
+          }));
+        });
+        s2.appendChild(row);
+      });
+    }
+    ed.appendChild(s2);
+
+    // Fragments
+    const s3 = section(&#x27;Fragments&#x27;);
+    SHARDS.forEach((rowDef, ri) =&gt; {
+      const row = el(&#x27;div&#x27;, &#x27;row&#x27;);
+      rowDef.forEach(sh =&gt; row.appendChild(pickBtn(&#x27;shard&#x27;, r.shards[ri] === sh.id, SHARD_IMG + sh.icon + &#x27;.png&#x27;, sh.name, () =&gt; {
+        r.shards[ri] = sh.id; redo();
+      })));
+      s3.appendChild(row);
+    });
+    ed.appendChild(s3);
+
+    // Objets de départ
+    const s4 = section(&#x27;Objets de départ&#x27;);
+    const chosen = el(&#x27;div&#x27;, &#x27;chosen&#x27;);
+    if (!k.items.length) chosen.appendChild(el(&#x27;span&#x27;, &#x27;muted&#x27;, &#x27;Clique sur un objet ci-dessous pour l’ajouter.&#x27;));
+    k.items.forEach((id, i) =&gt; {
+      const slot = el(&#x27;div&#x27;, &#x27;slot&#x27;);
+      slot.appendChild(itemIcon(id));
+      const x = el(&#x27;button&#x27;, &#x27;&#x27;, &#x27;×&#x27;);
+      x.title = &#x27;Retirer&#x27;;
+      x.onclick = () =&gt; { k.items.splice(i, 1); redo(); };
+      slot.appendChild(x);
+      chosen.appendChild(slot);
+    });
+    s4.appendChild(chosen);
+    const search = el(&#x27;input&#x27;, &#x27;item-search&#x27;);
+    search.type = &#x27;search&#x27;;
+    search.placeholder = &#x27;Rechercher un objet…&#x27;;
+    const grid = el(&#x27;div&#x27;, &#x27;grid&#x27;);
+    const fill = () =&gt; {
+      grid.textContent = &#x27;&#x27;;
+      const q = normalize(search.value);
+      const list = q ? items.filter(it =&gt; normalize(it.name).includes(q)) : items.filter(it =&gt; it.gold &lt;= 500);
+      list.forEach(it =&gt; {
+        const b = el(&#x27;button&#x27;);
+        b.type = &#x27;button&#x27;;
+        b.title = `${it.name} (${it.gold} PO)`;
+        b.appendChild(img(`${DD}/cdn/${ddVersion}/img/item/${it.id}.png`, &#x27;&#x27;, it.name));
+        b.onclick = () =&gt; { k.items.push(it.id); save(); render(); };
+        grid.appendChild(b);
+      });
+      if (!list.length) grid.appendChild(el(&#x27;span&#x27;, &#x27;muted&#x27;, &#x27;Aucun objet trouvé.&#x27;));
+    };
+    search.oninput = fill;
+    fill();
+    s4.append(search, el(&#x27;div&#x27;, &#x27;muted&#x27;, &#x27;Sans recherche : les objets à 500 PO ou moins.&#x27;), grid);
+    ed.appendChild(s4);
+    return ed;
+  }
+
+  function render(){ renderList(); renderDetail(); }
+
+  /* =========================================================
+     IMPORT / EXPORT
+     ========================================================= */
+  function exportJSON(){
+    const data = { app: &#x27;lol-runes&#x27;, version: 1, exported: new Date().toISOString(), champions: state.champions };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: &#x27;application/json&#x27; });
+    const a = document.createElement(&#x27;a&#x27;);
+    a.href = URL.createObjectURL(blob);
+    a.download = &#x27;runes-stuff-&#x27; + new Date().toISOString().slice(0, 10) + &#x27;.json&#x27;;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() =&gt; URL.revokeObjectURL(a.href), 1000);
+  }
+  function importJSON(text){
+    let incoming;
+    try{ incoming = sanitize(JSON.parse(text)); }catch(e){ incoming = null; }
+    if (!incoming){ alert(&quot;Ce fichier n&#x27;est pas une sauvegarde Runes &amp; stuff valide.&quot;); return; }
+    const n = incoming.reduce((s, c) =&gt; s + c.configs.length, 0);
+    const replace = confirm(
+      &#x27;Importer &#x27; + incoming.length + &#x27; champion(s) et &#x27; + n + &#x27; config(s).\n\n&#x27; +
+      &#x27;OK     = REMPLACER tout le contenu actuel\n&#x27; +
+      &#x27;Annuler = FUSIONNER avec le contenu actuel&#x27;
+    );
+    if (replace){
+      state.champions = incoming;
+    } else {
+      incoming.forEach(inc =&gt; {
+        const ex = state.champions.find(c =&gt; c.id === inc.id);
+        if (!ex){ state.champions.push(inc); return; }
+        ex.fav = ex.fav || inc.fav;
+        inc.configs.forEach(k =&gt; { if (!ex.configs.some(x =&gt; x.id === k.id)) ex.configs.push(k); });
+      });
+    }
+    if (!cur()) state.selected = state.champions[0] ? state.champions[0].id : null;
+    editing = null;
+    save(); render();
+  }
+
+  /* =========================================================
+     DATA DRAGON : champions, runes, objets
+     ========================================================= */
+  async function getJSON(url){
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+  async function loadDDragon(){
+    const msg = $(&#x27;#msg&#x27;);
+    try{
+      const v = await getJSON(DD + &#x27;/api/versions.json&#x27;);
+      if (Array.isArray(v) &amp;&amp; v[0]) ddVersion = v[0];
+      const [ch, ru, it, su] = await Promise.all([
+        getJSON(`${DD}/cdn/${ddVersion}/data/en_US/champion.json`),
+        getJSON(`${DD}/cdn/${ddVersion}/data/fr_FR/runesReforged.json`),
+        getJSON(`${DD}/cdn/${ddVersion}/data/fr_FR/item.json`),
+        getJSON(`${DD}/cdn/${ddVersion}/data/fr_FR/summoner.json`),
+      ]);
+      spells = Object.values(su.data)
+        .filter(d =&gt; (d.modes || []).includes(&#x27;CLASSIC&#x27;))
+        .map(d =&gt; ({ id: d.id, name: d.name, image: d.image.full }))
+        .sort((a, b) =&gt; a.name.localeCompare(b.name, &#x27;fr&#x27;));
+      spells.forEach(x =&gt; { spellById[x.id] = x; });
+      Object.values(ch.data).forEach(c =&gt; { champIndex[normalize(c.name)] = { id: c.id, name: c.name }; });
+      const dl = $(&#x27;#all-champions&#x27;);
+      Object.values(champIndex).map(c =&gt; c.name).sort((a, b) =&gt; a.localeCompare(b, &#x27;fr&#x27;))
+        .forEach(n =&gt; { const o = document.createElement(&#x27;option&#x27;); o.value = n; dl.appendChild(o); });
+
+      paths = ru.map(p =&gt; ({ id: p.id, name: p.name, icon: p.icon, slots: p.slots.map(s =&gt; s.runes.map(x =&gt; ({ id: x.id, name: x.name, icon: x.icon }))) }));
+      paths.forEach(p =&gt; p.slots.forEach(s =&gt; s.forEach(x =&gt; { runeById[x.id] = { name: x.name, icon: x.icon, path: p.id }; })));
+
+      // Objets achetables sur la Faille de l&#x27;invocateur, sans doublons de nom
+      const seen = new Set();
+      items = Object.entries(it.data)
+        .filter(([, d]) =&gt; d.maps &amp;&amp; d.maps[&#x27;11&#x27;] &amp;&amp; d.gold &amp;&amp; d.gold.purchasable &amp;&amp; !d.requiredChampion &amp;&amp; !d.requiredAlly &amp;&amp; d.inStore !== false)
+        .map(([id, d]) =&gt; ({ id, name: d.name, gold: d.gold.total }))
+        .sort((a, b) =&gt; a.gold - b.gold || a.name.localeCompare(b.name, &#x27;fr&#x27;))
+        .filter(x =&gt; (seen.has(x.name) ? false : seen.add(x.name)));
+      items.forEach(x =&gt; { itemById[x.id] = x; });
+      msg.hidden = true;
+    }catch(e){
+      msg.textContent = &#x27;Impossible de charger les données de Riot (pas de connexion ?). Tes configs sont bien là ; recharge la page une fois connecté.&#x27;;
+      msg.hidden = false;
+    }
+    render();
+  }
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+  state = load();
+  $(&#x27;#addBtn&#x27;).onclick = addChampion;
+  $(&#x27;#addChamp&#x27;).addEventListener(&#x27;keydown&#x27;, e =&gt; { if (e.key === &#x27;Enter&#x27;){ e.preventDefault(); addChampion(); } });
+  $(&#x27;#addChamp&#x27;).addEventListener(&#x27;input&#x27;, e =&gt; e.target.setCustomValidity(&#x27;&#x27;));
+  $(&#x27;#btnExport&#x27;).onclick = exportJSON;
+  $(&#x27;#btnImport&#x27;).onclick = () =&gt; $(&#x27;#fileInput&#x27;).click();
+  $(&#x27;#fileInput&#x27;).onchange = async e =&gt; {
+    const f = e.target.files[0];
+    e.target.value = &#x27;&#x27;;
+    if (f) importJSON(await f.text());
+  };
+  render();
   loadDDragon();
 })();
 &lt;/script&gt;
