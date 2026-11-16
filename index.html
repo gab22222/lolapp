@@ -70,6 +70,7 @@ nav .sync-btn.err::after{content:"";position:absolute;top:6px;right:10px;width:8
     <div class="logo">LoL</div>
     <button data-t="tiers" class="active" title="Tier Lists"><span class="ic">🏆</span>Tier Lists</button>
     <button data-t="matchups" title="Matchups Mid"><span class="ic">⚔️</span>Matchups Mid</button>
+    <button data-t="synergies" title="Synergies botlane"><span class="ic">🤝</span>Synergies bot</button>
     <button data-t="precis" title="Matchup précis"><span class="ic">🎯</span>Matchup précis</button>
     <button data-t="champion" title="Data d'un champion"><span class="ic">📊</span>Data champion</button>
     <button data-t="runes" title="Runes et stuff"><span class="ic">🔮</span>Runes &amp; stuff</button>
@@ -1611,6 +1612,1066 @@ loadChamps();
 
     $(&#x27;#btnReset&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
       if (!confirm(&#x27;Tout effacer (champions, counters et blind pick) ?\n(Tes modifications actuelles seront perdues)&#x27;)) return;
+      state = buildDefaultState();
+      resolveAllIds();
+      save(); fillDatalist(); render();
+    });
+
+    $(&#x27;#btnSort&#x27;).addEventListener(&#x27;click&#x27;, sortChampions);
+
+    // panneau &quot;+ Champion&quot;
+    const panel = $(&#x27;#addPanel&#x27;);
+    const input = $(&#x27;#newChampInput&#x27;);
+
+    $(&#x27;#btnAddChamp&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      panel.classList.toggle(&#x27;open&#x27;);
+      if (panel.classList.contains(&#x27;open&#x27;)) input.focus();
+    });
+    $(&#x27;#newChampCancel&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      panel.classList.remove(&#x27;open&#x27;);
+      input.value = &#x27;&#x27;;
+    });
+
+    const submitNew = () =&gt; {
+      const v = input.value.trim();
+      if (!v) return;
+      addChampion(v);
+      input.value = &#x27;&#x27;;
+      input.focus();
+    };
+    $(&#x27;#newChampBtn&#x27;).addEventListener(&#x27;click&#x27;, submitNew);
+    input.addEventListener(&#x27;keydown&#x27;, e =&gt; {
+      if (e.key === &#x27;Enter&#x27;){ e.preventDefault(); submitNew(); }
+      if (e.key === &#x27;Escape&#x27;){ panel.classList.remove(&#x27;open&#x27;); input.value = &#x27;&#x27;; }
+    });
+  }
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+  function init(){
+    state = loadState();
+    bindEvents();
+    fillDatalist();
+    render();
+    loadDDragon();          // asynchrone : met à jour icônes + autocomplétion
+  }
+
+  init();
+})();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;"></iframe>
+    <iframe id="synergies" title="Synergies botlane" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;fr&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;color-scheme&quot; content=&quot;dark&quot;&gt;
+&lt;title&gt;Synergies botlane — League of Legends&lt;/title&gt;
+&lt;style&gt;
+  :root{
+    --bg:#0a0e14;
+    --panel:#111823;
+    --panel2:#161f2c;
+    --border:#243040;
+    --gold:#c8aa6e;
+    --gold-dim:#785a28;
+    --text:#e8eaed;
+    --muted:#8b98a8;
+    --red:#e05a5a;
+    --green:#3ecf8e;
+    --blind:#5ad1c1;
+    --blind-dim:#2b7d6b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 50% -250px, #16283d 0%, rgba(10,14,20,0) 65%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:&quot;Segoe UI&quot;,system-ui,-apple-system,&quot;Helvetica Neue&quot;,Arial,sans-serif;
+    font-size:15px;
+    min-height:100vh;
+  }
+
+  /* ---------- Toast pop-up bloqué ---------- */
+  .popup-toast{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:100;
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    max-width:min(92vw,640px);padding:10px 14px;
+    background:#161f2c;border:1px solid var(--gold-dim);border-radius:8px;
+    color:var(--text);font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.5);
+  }
+  .popup-toast a{color:var(--gold);font-weight:600}
+  .popup-toast button{appearance:none;cursor:pointer;background:none;border:0;color:var(--muted);font-size:18px;line-height:1}
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky;top:0;z-index:20;
+    display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+    padding:14px 22px;
+    background:rgba(10,14,20,.86);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand h1{
+    margin:0;font-size:20px;letter-spacing:.5px;font-weight:700;
+    background:linear-gradient(180deg,#f0e6d2,var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand h1 span{color:var(--gold);-webkit-text-fill-color:var(--gold)}
+  .brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+  .btn{
+    appearance:none;cursor:pointer;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:8px 14px;border-radius:6px;
+    font-size:13px;font-weight:600;
+    transition:.15s;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn:hover{border-color:var(--gold-dim);color:var(--gold);background:#1b2634}
+  .btn.primary{
+    background:linear-gradient(180deg,#1d4d43,#12332d);
+    border-color:#2b7d6b;color:#c9fff0;
+  }
+  .btn.primary:hover{border-color:var(--green);color:#fff}
+  .btn.danger-ghost{color:var(--muted)}
+  .btn.danger-ghost:hover{border-color:#7a3a3a;color:var(--red)}
+
+  /* ---------- Add champion panel ---------- */
+  .add-panel{
+    display:none;gap:8px;align-items:center;flex-wrap:wrap;
+    padding:10px 22px;border-bottom:1px solid var(--border);
+    background:rgba(22,31,44,.6);
+  }
+  .add-panel.open{display:flex}
+  .add-panel input{
+    background:#0e1620;border:1px solid var(--border);border-radius:6px;
+    padding:8px 12px;color:var(--text);font-size:14px;min-width:260px;outline:none;
+  }
+  .add-panel input:focus{border-color:var(--gold)}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    max-width:1080px;margin:0 auto;
+    padding:16px 22px 0;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .search{
+    flex:1;min-width:220px;
+    background:var(--panel);border:1px solid var(--border);border-radius:6px;
+    padding:9px 14px;color:var(--text);font-size:14px;outline:none;
+  }
+  .search:focus{border-color:var(--gold-dim)}
+  .meta{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:10px}
+  .save-state{
+    color:var(--green);font-size:12px;opacity:0;transition:opacity .3s;
+  }
+  .save-state.show{opacity:1}
+
+  /* ---------- List ---------- */
+  main{max-width:1080px;margin:0 auto;padding:16px 22px 80px}
+  #list{display:flex;flex-direction:column;gap:10px}
+
+  .champ{
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--border);
+    border-left:3px solid var(--gold-dim);
+    border-radius:8px;
+    padding:10px 14px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .champ:hover{border-color:#2e3d52;border-left-color:var(--gold)}
+
+  /* --- Blind pick variant --- */
+  .champ.blind{
+    border-left-color:var(--blind-dim);
+    background:linear-gradient(180deg,#152825,#0f1a17);
+    margin-bottom:6px;
+  }
+  .champ.blind:hover{border-color:#2b7d6b;border-left-color:var(--blind)}
+  .champ.blind .champ-name{
+    color:#b8f4e5;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    font-size:14px;
+  }
+  .champ.blind .badge{
+    background:#123029;border-color:#2b7d6b;color:#8ce6c8;
+  }
+  .blind-badge{
+    width:48px;height:48px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;line-height:1;
+    color:var(--blind);
+    background:radial-gradient(circle at 50% 35%, #1c4438 0%, #0d1f18 70%);
+    border:1px solid var(--blind-dim);
+    border-radius:6px;
+    text-shadow:0 0 12px rgba(90,209,193,.55);
+  }
+  .champ.blind .add-input{
+    border-color:#2b4d47;
+  }
+  .champ.blind .add-input:focus{
+    border-color:var(--blind);
+    box-shadow:0 0 0 2px rgba(90,209,193,.18);
+  }
+
+  .champ-head{display:flex;align-items:center;gap:12px}
+
+  .avatar{
+    position:relative;flex:0 0 auto;overflow:hidden;
+    border-radius:6px;border:1px solid #2a3a4d;background:#0d141d;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .avatar img{width:100%;height:100%;display:block;object-fit:cover}
+  .avatar.lg{width:48px;height:48px}
+  .avatar.sm{width:22px;height:22px;border-radius:4px}
+  .avatar.fallback{
+    font-weight:700;color:var(--gold);background:#16202c;
+    font-size:15px;letter-spacing:.5px;
+  }
+  .avatar.sm.fallback{font-size:9px}
+
+  .champ-name{font-weight:600;font-size:16px;letter-spacing:.2px}
+  .badge{
+    background:#1c2836;border:1px solid var(--border);
+    color:var(--muted);border-radius:20px;padding:2px 9px;
+    font-size:11px;font-weight:700;
+  }
+  .icon-btn{
+    margin-left:auto;
+    background:transparent;border:1px solid transparent;border-radius:6px;
+    color:var(--muted);cursor:pointer;font-size:14px;line-height:1;
+    padding:6px 9px;transition:.15s;
+  }
+  .icon-btn:hover{color:var(--red);border-color:#7a3a3a;background:#241419}
+  .icon-btn.add:hover{color:var(--green);border-color:#2b7d6b;background:#12241f}
+
+  .counters{
+    display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+    margin-top:10px;padding-left:60px;
+  }
+  @media (max-width:640px){
+    .counters{padding-left:0}
+  }
+
+  /* ---------- Counter chips (drag &amp; drop) ---------- */
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:#18222f;border:1px solid #26344a;border-radius:20px;
+    padding:3px 6px 3px 4px;font-size:13px;
+    transition:border-color .15s, background .15s, box-shadow .15s, opacity .15s;
+    cursor:grab;
+    user-select:none;
+  }
+  .chip:hover{border-color:var(--gold-dim);background:#1d2939}
+  .chip:active{cursor:grabbing}
+  .chip.dragging{opacity:.35}
+  .chip.drag-over-before{box-shadow:-3px 0 0 0 var(--gold)}
+  .chip.drag-over-after {box-shadow: 3px 0 0 0 var(--gold)}
+
+  .champ.blind .chip{
+    background:#162a26;border-color:#2b4d47;
+  }
+  .champ.blind .chip:hover{
+    border-color:var(--blind-dim);background:#1b332d;
+  }
+  .champ.blind .chip.drag-over-before{box-shadow:-3px 0 0 0 var(--blind)}
+  .champ.blind .chip.drag-over-after {box-shadow: 3px 0 0 0 var(--blind)}
+
+  .chip-x{
+    background:none;border:none;color:var(--muted);cursor:pointer;
+    font-size:15px;line-height:1;padding:0 2px;border-radius:50%;
+  }
+  .chip-x:hover{color:var(--red)}
+
+  .add-wrap{display:inline-flex;align-items:center;gap:2px}
+  .add-input{
+    background:#0e1620;border:1px dashed #2b3a4f;border-radius:20px;
+    padding:5px 12px;color:var(--text);font-size:13px;width:160px;outline:none;
+    transition:.15s;
+  }
+  .add-input::placeholder{color:#5f6d7e}
+  .add-input:focus{border-style:solid;border-color:var(--gold);width:190px}
+
+  .empty{
+    text-align:center;color:var(--muted);padding:60px 20px;
+    border:1px dashed var(--border);border-radius:8px;
+  }
+  footer{
+    max-width:1080px;margin:0 auto;padding:0 22px 40px;
+    color:#5f6d7e;font-size:12px;text-align:center;
+  }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;header&gt;
+  &lt;div class=&quot;brand&quot;&gt;
+    &lt;h1&gt;SYNERGIES &lt;span&gt;BOTLANE&lt;/span&gt;&lt;/h1&gt;
+    &lt;p&gt;Tes ADC &amp;amp; les supports forts avec eux — sauvegarde locale automatique&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;actions&quot;&gt;
+    &lt;button id=&quot;btnAddChamp&quot; class=&quot;btn primary&quot;&gt;+ ADC&lt;/button&gt;
+    &lt;button id=&quot;btnSort&quot; class=&quot;btn&quot;&gt;⇅ Trier A→Z&lt;/button&gt;
+    &lt;button id=&quot;btnExport&quot; class=&quot;btn&quot;&gt;⬆ Exporter JSON&lt;/button&gt;
+    &lt;button id=&quot;btnImport&quot; class=&quot;btn&quot;&gt;⬇ Importer JSON&lt;/button&gt;
+    &lt;button id=&quot;btnReset&quot; class=&quot;btn danger-ghost&quot;&gt;↺ Réinitialiser&lt;/button&gt;
+    &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.json,application/json&quot; hidden&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;div class=&quot;add-panel&quot; id=&quot;addPanel&quot;&gt;
+  &lt;input id=&quot;newChampInput&quot; list=&quot;all-champions&quot; placeholder=&quot;Nom de l&#x27;ADC (ex : Jinx)&quot; autocomplete=&quot;off&quot;&gt;
+  &lt;button id=&quot;newChampBtn&quot; class=&quot;btn primary&quot;&gt;Ajouter&lt;/button&gt;
+  &lt;button id=&quot;newChampCancel&quot; class=&quot;btn&quot;&gt;Annuler&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;toolbar&quot;&gt;
+  &lt;input id=&quot;search&quot; class=&quot;search&quot; type=&quot;search&quot; placeholder=&quot;🔎 Rechercher un ADC…&quot;&gt;
+  &lt;div class=&quot;meta&quot;&gt;
+    &lt;span id=&quot;count&quot;&gt;&lt;/span&gt;
+    &lt;span id=&quot;saveState&quot; class=&quot;save-state&quot;&gt;&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;main&gt;
+  &lt;div id=&quot;list&quot;&gt;&lt;/div&gt;
+&lt;/main&gt;
+
+&lt;footer&gt;Astuce : tape le nom d&#x27;un support puis &lt;b&gt;Entrée&lt;/b&gt; (ou clique sur +). Tu peux en ajouter plusieurs séparés par des virgules. &lt;b&gt;Glisse-dépose&lt;/b&gt; un support pour changer son ordre. &lt;b&gt;Clique&lt;/b&gt; sur un champion : Lolalytics s&#x27;ouvre avec une analyse Claude.&lt;/footer&gt;
+
+&lt;datalist id=&quot;all-champions&quot;&gt;&lt;/datalist&gt;
+
+&lt;script&gt;
+(function(){
+  &#x27;use strict&#x27;;
+
+  /* =========================================================
+     CONFIG
+     ========================================================= */
+  const STORAGE_KEY     = &#x27;lol-bot-synergies-v1&#x27;;
+  const FALLBACK_VER    = &#x27;14.24.1&#x27;;
+  const BLIND_PICK_KEY  = &#x27;__blind_pick__&#x27;;
+  const BANS_KEY        = &#x27;__bans__&#x27;;
+  const ICON_BASE       = v =&gt; `https://ddragon.leagueoflegends.com/cdn/${v}/img/champion/`;
+
+  /* =========================================================
+     CONFIG PAR DÉFAUT = vide
+     ========================================================= */
+  const DEFAULT_JSON = `{ &quot;version&quot;: 1, &quot;blindPick&quot;: [], &quot;bans&quot;: [], &quot;champions&quot;: [] }`;
+
+  /* =========================================================
+     ÉTAT
+     ========================================================= */
+  let ddVersion  = FALLBACK_VER;
+  let champIndex = {};        // nom normalisé -&gt; { id, name }
+  let state      = null;
+  let saveTimer  = null;
+  let dragChip   = null;      // { targetKey, name } pendant un drag
+
+  const $ = s =&gt; document.querySelector(s);
+  const listEl      = $(&#x27;#list&#x27;);
+  const searchEl    = $(&#x27;#search&#x27;);
+  const countEl     = $(&#x27;#count&#x27;);
+  const saveStateEl = $(&#x27;#saveState&#x27;);
+  const datalistEl  = $(&#x27;#all-champions&#x27;);
+
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+  function normalize(s){
+    return String(s).toLowerCase()
+      .normalize(&#x27;NFD&#x27;).replace(/[\u0300-\u036f]/g,&#x27;&#x27;)
+      .replace(/[^a-z0-9]/g,&#x27;&#x27;);
+  }
+
+  const SPECIAL_IDS = {
+    &#x27;LeBlanc&#x27;:&#x27;Leblanc&#x27;,
+    &#x27;Wukong&#x27;:&#x27;MonkeyKing&#x27;,
+    &#x27;RenataGlasc&#x27;:&#x27;Renata&#x27;,
+    &#x27;Nunu&amp;Willump&#x27;:&#x27;Nunu&#x27;,
+    &#x27;ChoGath&#x27;:&#x27;Chogath&#x27;,
+    &#x27;DrMundo&#x27;:&#x27;DrMundo&#x27;,
+    &#x27;TahmKench&#x27;:&#x27;TahmKench&#x27;,
+    &#x27;AurelionSol&#x27;:&#x27;AurelionSol&#x27;,
+    &#x27;TwistedFate&#x27;:&#x27;TwistedFate&#x27;
+  };
+
+  function slug(name){
+    const s = String(name).replace(/[&#x27;’]/g,&#x27;&#x27;).replace(/[^A-Za-z0-9]/g,&#x27;&#x27;);
+    return SPECIAL_IDS[s] || s;
+  }
+
+  function prettify(name){
+    return String(name).trim().replace(/(^|\s)\S/g, c =&gt; c.toUpperCase());
+  }
+
+  function initials(name){
+    return String(name).split(/[\s&#x27;’\-]+/).filter(Boolean)
+      .slice(0,2).map(w =&gt; w[0].toUpperCase()).join(&#x27;&#x27;);
+  }
+
+  function iconUrl(entry){
+    return ICON_BASE(ddVersion) + (entry.id || slug(entry.name)) + &#x27;.png&#x27;;
+  }
+
+  function el(tag, cls, text){
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+
+  /* =========================================================
+     DONNÉES : création / chargement / sauvegarde
+     ========================================================= */
+  function buildDefaultState(){
+    try{
+      const parsed = sanitizeState(JSON.parse(DEFAULT_JSON));
+      if (parsed) return parsed;
+    }catch(e){ console.warn(&#x27;JSON par défaut invalide&#x27;, e); }
+    return { version:1, blindPick:[], bans:[], champions:[] };
+  }
+
+  function sanitizeState(raw){
+    const champs = Array.isArray(raw) ? raw : (raw &amp;&amp; raw.champions);
+    if (!Array.isArray(champs)) return null;
+
+    const out = [];
+    champs.forEach(c =&gt; {
+      if (!c) return;
+      const name = (typeof c === &#x27;string&#x27;) ? c : c.name;
+      if (!name) return;
+      const counters = Array.isArray(c.counters) ? c.counters : [];
+      out.push({
+        name: String(name),
+        id: c.id || slug(name),
+        counters: counters.map(k =&gt; {
+          if (typeof k === &#x27;string&#x27;) return { name: k, id: slug(k) };
+          if (k &amp;&amp; k.name)          return { name: k.name, id: k.id || slug(k.name) };
+          return null;
+        }).filter(Boolean)
+      });
+    });
+
+    // Liste &quot;Blind Pick&quot; (facultative pour rétro-compatibilité)
+    let blindPick = [];
+    if (raw &amp;&amp; Array.isArray(raw.blindPick)){
+      raw.blindPick.forEach(k =&gt; {
+        if (!k) return;
+        if (typeof k === &#x27;string&#x27;) blindPick.push({ name: k, id: slug(k) });
+        else if (k.name)           blindPick.push({ name: k.name, id: k.id || slug(k.name) });
+      });
+    }
+
+    let bans = [];
+    if (raw &amp;&amp; Array.isArray(raw.bans)){
+      raw.bans.forEach(k =&gt; {
+        if (!k) return;
+        if (typeof k === &#x27;string&#x27;) bans.push({ name: k, id: slug(k) });
+        else if (k.name)           bans.push({ name: k.name, id: k.id || slug(k.name) });
+      });
+    }
+    return { version: 1, blindPick, bans, champions: out };
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw){
+        const parsed = sanitizeState(JSON.parse(raw));
+        if (parsed) return parsed;
+      }
+    }catch(e){ console.warn(&#x27;Lecture localStorage impossible&#x27;, e); }
+    return buildDefaultState();
+  }
+
+  function save(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      flashSaved();
+    }catch(e){ console.warn(&#x27;Sauvegarde impossible&#x27;, e); }
+  }
+
+  function flashSaved(){
+    saveStateEl.textContent = &#x27;✓ sauvegardé&#x27;;
+    saveStateEl.classList.add(&#x27;show&#x27;);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() =&gt; saveStateEl.classList.remove(&#x27;show&#x27;), 1400);
+  }
+
+  /* =========================================================
+     RÉSOLUTION DES NOMS -&gt; ID DATA DRAGON
+     ========================================================= */
+  function resolveName(rawName){
+    const clean = prettify(rawName);
+    const hit = champIndex[normalize(clean)];
+    if (hit) return { name: hit.name, id: hit.id };
+    return { name: clean, id: slug(clean) };
+  }
+
+  function resolveAllIds(){
+    state.champions.forEach(c =&gt; {
+      const hit = champIndex[normalize(c.name)];
+      if (hit) c.id = hit.id;
+      c.counters.forEach(k =&gt; {
+        const hit2 = champIndex[normalize(k.name)];
+        if (hit2){ k.id = hit2.id; k.name = hit2.name; }
+      });
+    });
+    state.blindPick.concat(state.bans).forEach(k =&gt; {
+      const hit = champIndex[normalize(k.name)];
+      if (hit){ k.id = hit.id; k.name = hit.name; }
+    });
+  }
+
+  /* =========================================================
+     ACCÈS AUX LISTES CIBLES (champion normal OU blind pick)
+     ========================================================= */
+  function getTargetList(targetKey){
+    if (targetKey === BLIND_PICK_KEY) return state.blindPick;
+    if (targetKey === BANS_KEY) return state.bans;
+    const c = state.champions.find(x =&gt; x.name === targetKey);
+    return c ? c.counters : null;
+  }
+
+  /* =========================================================
+     RENDU
+     ========================================================= */
+  function avatar(entry, size){
+    const wrap = el(&#x27;div&#x27;, &#x27;avatar &#x27; + size);
+    const img  = document.createElement(&#x27;img&#x27;);
+    img.src = iconUrl(entry);
+    img.alt = entry.name;
+    img.loading = &#x27;lazy&#x27;;
+    img.draggable = false;
+    img.onerror = () =&gt; {
+      img.remove();
+      wrap.classList.add(&#x27;fallback&#x27;);
+      wrap.textContent = initials(entry.name);
+    };
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  function clearDragOver(except){
+    document.querySelectorAll(&#x27;.chip.drag-over-before, .chip.drag-over-after&#x27;)
+      .forEach(c =&gt; { if (c !== except) c.classList.remove(&#x27;drag-over-before&#x27;,&#x27;drag-over-after&#x27;); });
+  }
+
+  /* ---------- Lien Lolalytics ---------- */
+  const LOLALYTICS_PARAMS = &#x27;lane=support&amp;tier=platinum_plus&amp;patch=30&#x27;;
+  const LOLALYTICS_SLUG_FIX = { nunuwillump:&#x27;nunu&#x27;, renataglasc:&#x27;renata&#x27;, monkeyking:&#x27;wukong&#x27; };
+
+  function lolalyticsSlug(name){
+    const k = String(name).toLowerCase()
+      .normalize(&#x27;NFD&#x27;).replace(/[\u0300-\u036f]/g, &#x27;&#x27;)
+      .replace(/[^a-z0-9]/g, &#x27;&#x27;);
+    return LOLALYTICS_SLUG_FIX[k] || k;
+  }
+
+  /* counter ... vs ... champion ciblé (ligne) */
+  function lolalyticsUrl(targetKey, counterName){
+    const champ = lolalyticsSlug(counterName);
+    if (targetKey === BANS_KEY) return &#x27;https://lolalytics.com/fr/lol/&#x27; + champ + &#x27;/build/?tier=platinum_plus&amp;patch=30&#x27;;
+    return &#x27;https://lolalytics.com/fr/lol/&#x27; + champ + &#x27;/build/?&#x27; + LOLALYTICS_PARAMS;
+  }
+
+  /* ---------- Ouverture : Claude (arrière-plan) puis Lolalytics (premier plan) ---------- */
+  /* Le dernier onglet ouvert passe au premier plan : on ouvre donc Claude d&#x27;abord, puis Lolalytics.
+     Attention : un navigateur n&#x27;autorise par défaut qu&#x27;UN onglet par clic. Pour en ouvrir deux d&#x27;un coup,
+     il faut autoriser les pop-ups pour cette page (une seule fois). Sinon on le détecte et on l&#x27;explique. */
+  function showPopupHelp(links){
+    const old = document.getElementById(&#x27;popupToast&#x27;);
+    if (old) old.remove();
+    const t = document.createElement(&#x27;div&#x27;);
+    t.id = &#x27;popupToast&#x27;;
+    t.className = &#x27;popup-toast&#x27;;
+    const msg = document.createElement(&#x27;span&#x27;);
+    msg.textContent = &quot;Ton navigateur ne laisse ouvrir qu&#x27;un onglet par clic. Pour avoir Lolalytics + Claude d&#x27;un coup, &quot; +
+      &quot;autorise les pop-ups pour cette page (icône dans la barre d&#x27;adresse → « Toujours autoriser »), puis reclique. &quot; +
+      &quot;En attendant :&quot;;
+    t.appendChild(msg);
+    links.forEach(b =&gt; {
+      const a = document.createElement(&#x27;a&#x27;);
+      a.href = b.url; a.target = &#x27;_blank&#x27;; a.rel = &#x27;noopener&#x27;; a.textContent = b.label;
+      t.appendChild(a);
+    });
+    const x = document.createElement(&#x27;button&#x27;);
+    x.textContent = &#x27;×&#x27;;
+    x.onclick = () =&gt; t.remove();
+    t.appendChild(x);
+    document.body.appendChild(t);
+    setTimeout(() =&gt; t.remove(), 30000);
+  }
+
+  function openTabs(lolaUrl, prompt){
+    const claudeUrl = &#x27;https://claude.ai/new?q=&#x27; + encodeURIComponent(prompt);
+    const wc = window.open(claudeUrl, &#x27;_blank&#x27;);   // 1) Claude -&gt; finira en arrière-plan
+    const wl = window.open(lolaUrl, &#x27;_blank&#x27;);     // 2) Lolalytics -&gt; reste au premier plan
+    const both = [
+      { url: lolaUrl,   label: &#x27;Ouvrir Lolalytics&#x27; },
+      { url: claudeUrl, label: &#x27;Ouvrir Claude&#x27; }
+    ];
+    if (wl){
+      try{ wl.opener = null; }catch(err){}
+      if (wc){ try{ wc.opener = null; }catch(err){} }
+      else showPopupHelp([both[1]]);
+    } else {
+      // 2e onglet bloqué : on referme Claude pour rester sur cette page et expliquer pourquoi
+      if (wc){ try{ wc.close(); }catch(err){} }
+      showPopupHelp(both);
+    }
+  }
+
+  function matchupPrompt(targetKey, counterName){
+    if (targetKey === BLIND_PICK_KEY){
+      return &#x27;Je joue &#x27; + counterName + &#x27; support en blind pick sur League of Legends. &#x27; +
+        &#x27;Donne-moi comment jouer ce champion en botlane : niveaux 1 à 6, quand engager, power spikes et avec quels ADC il est le plus fort. Soit extremement synthétique&#x27;;
+    }
+    if (targetKey === BANS_KEY){
+      return &#x27;Je joue support en botlane sur League of Legends. Explique-moi pourquoi &#x27; + counterName +
+        &#x27; est un bon ban pour moi et comment jouer contre lui si je ne peux pas le bannir. Soit extremement synthétique&#x27;;
+    }
+    return &#x27;Je joue &#x27; + counterName + &#x27; support avec &#x27; + targetKey + &#x27; en ADC sur League of Legends. &#x27; +
+      &#x27;Donne-moi le détail de cette synergie botlane : niveaux 1 à 6, quand engager, combos et power spikes du duo. Soit extremement synthétique&#x27;;
+  }
+
+  function openMatchup(targetKey, counterName){
+    openTabs(lolalyticsUrl(targetKey, counterName), matchupPrompt(targetKey, counterName));
+  }
+
+  function counterChip(targetKey, counter){
+    const chip = el(&#x27;div&#x27;,&#x27;chip&#x27;);
+    chip.draggable = true;
+    chip.dataset.counter = counter.name;
+    chip.title = counter.name + &#x27; — clic : Lolalytics + analyse Claude · glisse-dépose pour réordonner&#x27;;
+
+    chip.appendChild(avatar(counter,&#x27;sm&#x27;));
+    chip.appendChild(el(&#x27;span&#x27;, null, counter.name));
+
+    const x = el(&#x27;button&#x27;,&#x27;chip-x&#x27;,&#x27;×&#x27;);
+    x.draggable = false;
+    x.title = &#x27;Retirer &#x27; + counter.name;
+    x.addEventListener(&#x27;click&#x27;, () =&gt; removeCounter(targetKey, counter.name));
+    chip.appendChild(x);
+
+    /* ---------- Clic : ouvre le matchup sur Lolalytics ---------- */
+    chip.addEventListener(&#x27;click&#x27;, e =&gt; {
+      if (e.target.closest(&#x27;.chip-x&#x27;)) return;
+      openMatchup(targetKey, counter.name);
+    });
+
+    /* ---------- Drag &amp; drop (réordonne dans la même ligne) ---------- */
+    chip.addEventListener(&#x27;dragstart&#x27;, e =&gt; {
+      dragChip = { targetKey, name: counter.name };
+      chip.classList.add(&#x27;dragging&#x27;);
+      e.dataTransfer.effectAllowed = &#x27;move&#x27;;
+      try{ e.dataTransfer.setData(&#x27;text/plain&#x27;, counter.name); }catch(_){}
+    });
+
+    chip.addEventListener(&#x27;dragend&#x27;, () =&gt; {
+      chip.classList.remove(&#x27;dragging&#x27;);
+      clearDragOver(null);
+      dragChip = null;
+    });
+
+    chip.addEventListener(&#x27;dragover&#x27;, e =&gt; {
+      // On n&#x27;accepte le dépôt que dans la même ligne (même cible)
+      if (!dragChip || dragChip.targetKey !== targetKey) return;
+      if (dragChip.name === counter.name) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = &#x27;move&#x27;;
+
+      const r = chip.getBoundingClientRect();
+      const after = e.clientX &gt;= r.left + r.width / 2;
+
+      clearDragOver(chip);
+      chip.classList.toggle(&#x27;drag-over-before&#x27;, !after);
+      chip.classList.toggle(&#x27;drag-over-after&#x27;,  after);
+    });
+
+    chip.addEventListener(&#x27;dragleave&#x27;, e =&gt; {
+      if (e.relatedTarget &amp;&amp; chip.contains(e.relatedTarget)) return;
+      chip.classList.remove(&#x27;drag-over-before&#x27;,&#x27;drag-over-after&#x27;);
+    });
+
+    chip.addEventListener(&#x27;drop&#x27;, e =&gt; {
+      if (!dragChip || dragChip.targetKey !== targetKey) return;
+      if (dragChip.name === counter.name) return;
+      e.preventDefault();
+
+      const after = chip.classList.contains(&#x27;drag-over-after&#x27;);
+      const srcName = dragChip.name;
+      dragChip = null;
+      chip.classList.remove(&#x27;drag-over-before&#x27;,&#x27;drag-over-after&#x27;);
+      moveCounter(targetKey, srcName, counter.name, after);
+    });
+
+    return chip;
+  }
+
+  function addControl(targetKey, placeholder){
+    const wrap  = el(&#x27;div&#x27;,&#x27;add-wrap&#x27;);
+    const input = document.createElement(&#x27;input&#x27;);
+    input.className = &#x27;add-input&#x27;;
+    input.dataset.champ = targetKey;
+    input.placeholder = placeholder || &#x27;+ support…&#x27;;
+    input.setAttribute(&#x27;list&#x27;,&#x27;all-champions&#x27;);
+    input.autocomplete = &#x27;off&#x27;;
+
+    const commit = () =&gt; {
+      const val = input.value.trim();
+      if (!val) return;
+      val.split(&#x27;,&#x27;).map(s =&gt; s.trim()).filter(Boolean)
+         .forEach(name =&gt; addCounter(targetKey, name));
+      input.value = &#x27;&#x27;;
+      focusAddInput(targetKey);
+    };
+
+    input.addEventListener(&#x27;keydown&#x27;, e =&gt; {
+      if (e.key === &#x27;Enter&#x27;){ e.preventDefault(); commit(); }
+      else if (e.key === &#x27;Escape&#x27;){ input.value = &#x27;&#x27;; input.blur(); }
+    });
+
+    const btn = el(&#x27;button&#x27;,&#x27;icon-btn add&#x27;,&#x27;+&#x27;);
+    btn.title = &#x27;Ajouter&#x27;;
+    btn.addEventListener(&#x27;click&#x27;, commit);
+
+    wrap.appendChild(input);
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  /* Carte générique : champion OU blind pick */
+  function buildCard(opts){
+    const { targetKey, displayName, counters, id, blind } = opts;
+
+    const card = el(&#x27;div&#x27;, &#x27;champ&#x27; + (blind ? &#x27; blind&#x27; : &#x27;&#x27;));
+    card.dataset.champ = targetKey;
+
+    /* --- entête --- */
+    const head = el(&#x27;div&#x27;,&#x27;champ-head&#x27;);
+
+    if (blind){
+      head.appendChild(el(&#x27;div&#x27;,&#x27;blind-badge&#x27;, opts.badge || &#x27;★&#x27;));
+    } else {
+      head.appendChild(avatar({ name: displayName, id }, &#x27;lg&#x27;));
+    }
+
+    head.appendChild(el(&#x27;div&#x27;,&#x27;champ-name&#x27;, displayName));
+    head.appendChild(el(&#x27;span&#x27;,&#x27;badge&#x27;, String(counters.length)));
+
+    if (!blind){
+      const del = el(&#x27;button&#x27;,&#x27;icon-btn&#x27;,&#x27;✕&#x27;);
+      del.title = &#x27;Supprimer &#x27; + displayName + &#x27; de la liste&#x27;;
+      del.addEventListener(&#x27;click&#x27;, () =&gt; removeChampion(displayName));
+      head.appendChild(del);
+    }
+    card.appendChild(head);
+
+    /* --- counters / champions --- */
+    const body = el(&#x27;div&#x27;,&#x27;counters&#x27;);
+    counters.forEach(c =&gt; body.appendChild(counterChip(targetKey, c)));
+    body.appendChild(addControl(targetKey, opts.placeholder || (blind ? &#x27;+ blind pick support…&#x27; : &#x27;+ support…&#x27;)));
+    card.appendChild(body);
+
+    return card;
+  }
+
+  function championCard(champ){
+    return buildCard({
+      targetKey:   champ.name,
+      displayName: champ.name,
+      counters:    champ.counters,
+      id:          champ.id,
+      blind:       false
+    });
+  }
+
+  function blindPickCard(){
+    return buildCard({
+      targetKey:   BLIND_PICK_KEY,
+      displayName: &#x27;Blind pick support&#x27;,
+      counters:    state.blindPick,
+      blind:       true
+    });
+  }
+
+  function bansCard(){
+    return buildCard({
+      targetKey:   BANS_KEY,
+      displayName: &#x27;Bans&#x27;,
+      counters:    state.bans,
+      blind:       true,
+      badge:       &#x27;⛔&#x27;,
+      placeholder: &#x27;+ ban…&#x27;
+    });
+  }
+
+  function focusAddInput(targetKey){
+    const inputs = document.querySelectorAll(&#x27;.add-input&#x27;);
+    for (const i of inputs){
+      if (i.dataset.champ === targetKey){ i.focus(); return; }
+    }
+  }
+
+  function render(focusKey){
+    const q = normalize(searchEl.value);
+    listEl.innerHTML = &#x27;&#x27;;
+
+    let shown = 0;
+
+    // La ligne &quot;Blind Pick&quot; reste épinglée en haut — masquée quand on recherche
+    if (!q){
+      listEl.appendChild(blindPickCard());
+      listEl.appendChild(bansCard());
+    }
+
+    state.champions.forEach(champ =&gt; {
+      if (q &amp;&amp; !normalize(champ.name).includes(q)) return;
+      listEl.appendChild(championCard(champ));
+      shown++;
+    });
+
+    if (shown === 0 &amp;&amp; q){
+      const empty = el(&#x27;div&#x27;,&#x27;empty&#x27;);
+      empty.innerHTML = &#x27;Aucun champion ne correspond à « &#x27; + searchEl.value.replace(/[&lt;&gt;&amp;]/g,&#x27;&#x27;) + &#x27; ».&#x27;;
+      listEl.appendChild(empty);
+    } else if (state.champions.length === 0 &amp;&amp; !q){
+      const empty = el(&#x27;div&#x27;,&#x27;empty&#x27;);
+      empty.innerHTML = &#x27;Aucun ADC. Clique sur « + ADC » pour commencer.&#x27;;
+      listEl.appendChild(empty);
+    }
+
+    const n = state.champions.length;
+    const nb = state.blindPick.length;
+    countEl.textContent =
+      n + &#x27; ADC suivi&#x27; + (n &gt; 1 ? &#x27;s&#x27; : &#x27;&#x27;) +
+      &#x27; • &#x27; + nb + &#x27; blind pick&#x27; + &#x27; • &#x27; + state.bans.length + &#x27; ban&#x27; + (state.bans.length &gt; 1 ? &#x27;s&#x27; : &#x27;&#x27;);
+
+    if (focusKey) focusAddInput(focusKey);
+  }
+
+  /* =========================================================
+     MUTATIONS
+     ========================================================= */
+  function addChampion(rawName){
+    const res = resolveName(rawName);
+    if (!res.name) return false;
+    const exists = state.champions.some(c =&gt; normalize(c.name) === normalize(res.name));
+    if (exists){ render(); return false; }
+    state.champions.push({ name: res.name, id: res.id, counters: [] });
+    save(); fillDatalist(); render();
+    return true;
+  }
+
+  function removeChampion(name){
+    if (!confirm(&#x27;Supprimer « &#x27; + name + &#x27; » et tous ses supports ?&#x27;)) return;
+    state.champions = state.champions.filter(c =&gt; c.name !== name);
+    save(); render();
+  }
+
+  function addCounter(targetKey, rawCounter){
+    const list = getTargetList(targetKey);
+    if (!list) return;
+    const res = resolveName(rawCounter);
+    if (!res.name) return;
+    if (list.some(k =&gt; normalize(k.name) === normalize(res.name))) return;
+    list.push({ name: res.name, id: res.id });
+    save(); fillDatalist(); render(targetKey);
+  }
+
+  function removeCounter(targetKey, counterName){
+    const list = getTargetList(targetKey);
+    if (!list) return;
+    const filtered = list.filter(k =&gt; k.name !== counterName);
+    if (targetKey === BLIND_PICK_KEY){
+      state.blindPick = filtered;
+    } else if (targetKey === BANS_KEY){
+      state.bans = filtered;
+    } else {
+      const champ = state.champions.find(c =&gt; c.name === targetKey);
+      if (!champ) return;
+      champ.counters = filtered;
+    }
+    save(); render(targetKey);
+  }
+
+  /* ----- Réordonnancement par glisser-déposer (même ligne) ----- */
+  function moveCounter(targetKey, srcName, refName, after){
+    const list = getTargetList(targetKey);
+    if (!list) return;
+
+    const from = list.findIndex(k =&gt; k.name === srcName);
+    if (from === -1) return;
+
+    const [item] = list.splice(from, 1);
+
+    let to = list.findIndex(k =&gt; k.name === refName);
+    if (to === -1){ list.splice(from, 0, item); return; } // sécurité
+    if (after) to += 1;
+
+    list.splice(to, 0, item);
+
+    save();
+    render(targetKey);
+  }
+
+  function sortChampions(){
+    state.champions.sort((a,b) =&gt; a.name.localeCompare(b.name, &#x27;fr&#x27;));
+    state.champions.forEach(c =&gt; c.counters.sort((a,b) =&gt; a.name.localeCompare(b.name,&#x27;fr&#x27;)));
+    state.blindPick.sort((a,b) =&gt; a.name.localeCompare(b.name,&#x27;fr&#x27;));
+    state.bans.sort((a,b) =&gt; a.name.localeCompare(b.name,&#x27;fr&#x27;));
+    save(); render();
+  }
+
+  /* =========================================================
+     DATALIST
+     ========================================================= */
+  function fillDatalist(){
+    const names = new Set(Object.values(champIndex).map(c =&gt; c.name));
+    state.champions.forEach(c =&gt; {
+      names.add(c.name);
+      c.counters.forEach(k =&gt; names.add(k.name));
+    });
+    state.blindPick.concat(state.bans).forEach(k =&gt; names.add(k.name));
+    datalistEl.innerHTML = &#x27;&#x27;;
+    [...names].sort((a,b) =&gt; a.localeCompare(b,&#x27;fr&#x27;)).forEach(n =&gt; {
+      const o = document.createElement(&#x27;option&#x27;);
+      o.value = n;
+      datalistEl.appendChild(o);
+    });
+  }
+
+  /* =========================================================
+     IMPORT / EXPORT
+     ========================================================= */
+  function exportJSON(){
+    const payload = {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      blindPick: state.blindPick,
+      bans: state.bans,
+      champions: state.champions
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:&#x27;application/json&#x27; });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement(&#x27;a&#x27;);
+    a.href = url;
+    a.download = &#x27;synergies-botlane-&#x27; + new Date().toISOString().slice(0,10) + &#x27;.json&#x27;;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() =&gt; URL.revokeObjectURL(url), 1000);
+  }
+
+  function importJSON(text){
+    let parsed;
+    try{ parsed = JSON.parse(text); }
+    catch(e){ alert(&#x27;Fichier JSON invalide : &#x27; + e.message); return; }
+
+    const incoming = sanitizeState(parsed);
+    if (!incoming){ alert(&#x27;Format non reconnu : il faut un tableau de champions ou un objet { &quot;champions&quot;: [...] }.&#x27;); return; }
+
+    const replace = confirm(
+      &#x27;Importer &#x27; + incoming.champions.length + &#x27; ADC, &#x27; + incoming.blindPick.length + &#x27; blind pick(s) et &#x27; + incoming.bans.length + &#x27; ban(s).\n\n&#x27; +
+      &#x27;OK     = REMPLACER la liste actuelle\n&#x27; +
+      &#x27;Annuler = FUSIONNER avec la liste actuelle&#x27;
+    );
+
+    if (replace){
+      state = incoming;
+    } else {
+      // Fusion bans
+      incoming.bans.forEach(k =&gt; {
+        if (!state.bans.some(x =&gt; normalize(x.name) === normalize(k.name))) state.bans.push(k);
+      });
+      // Fusion blind pick
+      incoming.blindPick.forEach(k =&gt; {
+        if (!state.blindPick.some(x =&gt; normalize(x.name) === normalize(k.name))){
+          state.blindPick.push(k);
+        }
+      });
+      // Fusion champions
+      incoming.champions.forEach(inc =&gt; {
+        const existing = state.champions.find(c =&gt; normalize(c.name) === normalize(inc.name));
+        if (!existing){
+          state.champions.push(inc);
+        } else {
+          inc.counters.forEach(k =&gt; {
+            if (!existing.counters.some(x =&gt; normalize(x.name) === normalize(k.name))){
+              existing.counters.push(k);
+            }
+          });
+        }
+      });
+    }
+
+    resolveAllIds();
+    save(); fillDatalist(); render();
+  }
+
+  /* =========================================================
+     DATA DRAGON (icônes + autocomplétion)
+     ========================================================= */
+  async function loadDDragon(){
+    // 1) version la plus récente
+    try{
+      const r = await fetch(&#x27;https://ddragon.leagueoflegends.com/api/versions.json&#x27;);
+      if (r.ok){
+        const versions = await r.json();
+        if (Array.isArray(versions) &amp;&amp; versions[0]) ddVersion = versions[0];
+      }
+    }catch(e){ /* hors-ligne : on garde la version de secours */ }
+
+    // 2) index des champions
+    try{
+      const r = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ddVersion}/data/en_US/champion.json`);
+      if (r.ok){
+        const data = await r.json();
+        Object.values(data.data).forEach(c =&gt; {
+          champIndex[normalize(c.name)] = { id: c.id, name: c.name };
+        });
+      }
+    }catch(e){ /* hors-ligne : on utilisera les slugs */ }
+
+    resolveAllIds();
+    fillDatalist();
+    save();
+    render();
+  }
+
+  /* =========================================================
+     ÉVÉNEMENTS
+     ========================================================= */
+  function bindEvents(){
+    searchEl.addEventListener(&#x27;input&#x27;, () =&gt; render());
+
+    $(&#x27;#btnExport&#x27;).addEventListener(&#x27;click&#x27;, exportJSON);
+
+    $(&#x27;#btnImport&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; $(&#x27;#fileInput&#x27;).click());
+    $(&#x27;#fileInput&#x27;).addEventListener(&#x27;change&#x27;, e =&gt; {
+      const file = e.target.files &amp;&amp; e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () =&gt; importJSON(String(reader.result));
+      reader.readAsText(file);
+      e.target.value = &#x27;&#x27;;
+    });
+
+    $(&#x27;#btnReset&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+      if (!confirm(&#x27;Tout effacer (ADC, supports, blind pick et bans) ?\n(Tes modifications actuelles seront perdues)&#x27;)) return;
       state = buildDefaultState();
       resolveAllIds();
       save(); fillDatalist(); render();
@@ -3292,6 +4353,8 @@ try{const s=localStorage.getItem('lol-hub-tab');if(s)show(s)}catch(e){}
       isEmpty: d => !d || !(d.lists || []).some(l => (l.tiers || []).some(t => (t.champs || []).length)) },
     { key: 'lol-mid-matchups-v1', file: 'matchups.json',  frame: 'matchups', label: 'Matchups Mid',
       isEmpty: d => !d || (!(d.champions || []).length && !(d.blindPick || []).length) },
+    { key: 'lol-bot-synergies-v1', file: 'synergies.json', frame: 'synergies', label: 'Synergies botlane',
+      isEmpty: d => !d || (!(d.champions || []).length && !(d.blindPick || []).length && !(d.bans || []).length) },
     { key: 'lol-runes-v1',        file: 'runes.json',     frame: 'runes',    label: 'Runes & stuff',
       isEmpty: d => !d || !(d.champions || []).length },
   ];
