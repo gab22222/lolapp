@@ -1925,7 +1925,6 @@ loadChamps();
     &lt;button id=&quot;btnSort&quot; class=&quot;btn&quot;&gt;⇅ Trier A→Z&lt;/button&gt;
     &lt;button id=&quot;btnExport&quot; class=&quot;btn&quot;&gt;⬆ Exporter JSON&lt;/button&gt;
     &lt;button id=&quot;btnImport&quot; class=&quot;btn&quot;&gt;⬇ Importer JSON&lt;/button&gt;
-    &lt;button id=&quot;btnReset&quot; class=&quot;btn danger-ghost&quot;&gt;↺ Réinitialiser&lt;/button&gt;
     &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.json,application/json&quot; hidden&gt;
   &lt;/div&gt;
 &lt;/header&gt;
@@ -2668,13 +2667,6 @@ loadChamps();
       reader.onload = () =&gt; importJSON(String(reader.result));
       reader.readAsText(file);
       e.target.value = &#x27;&#x27;;
-    });
-
-    $(&#x27;#btnReset&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
-      if (!confirm(&#x27;Tout effacer (ADC, supports, blind pick et bans) ?\n(Tes modifications actuelles seront perdues)&#x27;)) return;
-      state = buildDefaultState();
-      resolveAllIds();
-      save(); fillDatalist(); render();
     });
 
     $(&#x27;#btnSort&#x27;).addEventListener(&#x27;click&#x27;, sortChampions);
