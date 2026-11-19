@@ -4463,12 +4463,16 @@ try{const s=localStorage.getItem('lol-hub-tab');if(s)show(s)}catch(e){}
         if (local && !item.isEmpty(local)) await push();
         continue;
       }
-      if (sha === cfg.shas[item.key] && !cfg.fresh){
+      // Un onglet vide (par ex. enregistré tout seul au premier chargement) ne doit
+      // jamais écraser une copie en ligne remplie : on va relire la copie en ligne.
+      const emptyLocal = !local || item.isEmpty(local);
+      if (sha === cfg.shas[item.key] && !cfg.fresh && !emptyLocal){
         if (stamp > (cfg.syncedAt[item.key] || '')) await push();
         continue;
       }
       const doc = await readBlob(cfg, sha);
       cfg.shas[item.key] = sha;
+      if (emptyLocal && !item.isEmpty(doc.donnees)){ applyRemote(item, doc); continue; }
       if (cfg.fresh){
         // Première synchro de cet appareil : on demande en cas de désaccord.
         const same = local && JSON.stringify(local) === JSON.stringify(doc.donnees);
